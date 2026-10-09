@@ -1,0 +1,276 @@
+{
+  "name": "Booking Event using Chat AI agent",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        160,
+        -144
+      ],
+      "id": "fe1a6ae1-04d3-49a7-b935-d366da69831b",
+      "name": "When chat message received",
+      "webhookId": "11280070-3746-4359-8d50-21fc02a6747f"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Subject:{{ $json.Subject }}\n\nBody: {{ $json.snippet }}",
+        "options": {
+          "systemMessage": "=You are a helpful assistant that manages scheduling and emails.\n\n## Critical Rules:\n1. You must ALWAYS look up the person’s email in the Google Sheets \"Contacts Database\" before creating a Google Calendar event or sending an email.\n2. You are NEVER allowed to invent or guess an email address. If the email is not present in the Contacts Database, you must NOT create the event or send the email.\n3. If no matching email is found in the Contacts Database, respond with:\n   \"Error: Email for [Person Name] not found in Contacts Database. Please update the Contacts Database first.\"\n4. When creating events in Google Calendar, you must use the EXACT email retrieved from the Contacts Database, with no modifications.\n5. With every new chat, always perform the Contacts Database lookup step again. Do not rely on memory.\n6. The current date and time is: {{ $now }} (use this for reference if needed).\n\nYour role is to assist ONLY with verified data. Any task that requires an email must stop if the email cannot be found in the Contacts Database.\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "a06ff3df-faec-4b9c-a463-b558c62cd392",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        288,
+        208
+      ],
+      "id": "d2c07ec8-8e0f-4452-b9c6-71bdc036d87c",
+      "name": "GPT 4.1 mini",
+      "credentials": {
+        "openAiApi": {
+          "id": "9h0Aj0dDCeImy78b",
+          "name": "OpenAi API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.From }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        416,
+        208
+      ],
+      "id": "f7bef857-59cc-4903-b6e5-93fee0a01e7c",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        672,
+        208
+      ],
+      "id": "3bd0b3bb-5e35-41dd-b89f-d738d655b966",
+      "name": "Send a message in Gmail",
+      "webhookId": "ec0b9d1c-a4c7-442c-bfa0-d7179a12bfe8",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JF35MJTSsc26tCF5",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "yaseenayaz00@gmail.com",
+          "mode": "list",
+          "cachedResultName": "yaseenayaz00@gmail.com"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "additionalFields": {
+          "attendees": [
+            "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('attendees0_Attendees', ``, 'string') }}"
+          ],
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        544,
+        208
+      ],
+      "id": "017e353d-e5c3-45d1-a5cb-a498c2e08dc0",
+      "name": "Create an event in Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "G2mQKAqD4L51xEk3",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1C-80H3K3FJKAmJ2AvClknCqrtWEVo4jytLGhpNV5GF4",
+          "mode": "list",
+          "cachedResultName": "Contacts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1C-80H3K3FJKAmJ2AvClknCqrtWEVo4jytLGhpNV5GF4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1C-80H3K3FJKAmJ2AvClknCqrtWEVo4jytLGhpNV5GF4/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        880,
+        208
+      ],
+      "id": "bbf81e60-c617-4bae-b7e2-c5a160b80a49",
+      "name": "Contacts Database",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "MQJpCTks792stGE0",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        160,
+        16
+      ],
+      "id": "38f07476-30cb-4af1-ba37-bb789b5636b0",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JF35MJTSsc26tCF5",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        []
+      ]
+    },
+    "GPT 4.1 mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an event in Google Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contacts Database": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "362d0323-c86b-447b-8352-62172626bee7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cb81fb3e29671da208c51392b9c20b1e03007b00df3b4082b66b18b620d8b00d"
+  },
+  "id": "Kzvk15RsvTwpYorQ",
+  "tags": []
+}

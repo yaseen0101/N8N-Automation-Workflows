@@ -1,0 +1,298 @@
+{
+  "name": "LinkedIn Content Creator Workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        16,
+        48
+      ],
+      "id": "03626f39-184f-4ef2-b770-d4af54af629e",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "19KfuRFg4e-E48_oa0I35AmrEVkSdcoDeZ8ZGKRisV88",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Posts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19KfuRFg4e-E48_oa0I35AmrEVkSdcoDeZ8ZGKRisV88/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19KfuRFg4e-E48_oa0I35AmrEVkSdcoDeZ8ZGKRisV88/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Status",
+              "lookupValue": "To Do"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        256,
+        96
+      ],
+      "id": "74254841-52b7-4e54-9780-5bff48f77a0e",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "MQJpCTks792stGE0",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Artical 1:{{ $json.results[0].content }}\nArtical 2:{{ $json.results[1].content }}\nArtical 3:{{ $json.results[2].content }} ",
+        "options": {
+          "systemMessage": "=You are an AI agent responsible for generating a concise, inspiring LinkedIn post targeted at entrepreneurs and business owners.\n\nContext\nThe agent receives 3 articles on a related business or entrepreneurship topic.\n\nThe goal is to synthesize the key entrepreneurial insights into a short, professional LinkedIn post.\n\nThe tone should be motivational, forward-thinking, and relevant to entrepreneurs and business leaders.\n\nPosts should be optimized for engagement using relevant hashtags and tasteful use of emojis.\n\nInstructions\nRead and extract the core themes, strategies, and trends from all three articles.\n\nIdentify common threads or overarching entrepreneurial messages.\n\nWrite a LinkedIn post (max 700 characters) that blends the main takeaways into an inspiring, action-oriented message for entrepreneurs.\n\nUse 2–4 relevant business, leadership, and growth hashtags that align with the post topic.\n\nAdd 1–3 tasteful emojis to boost engagement without reducing professionalism.\n\nDo not quote or directly reference the articles — focus on synthesizing the ideas in your own words.\n\nKeyword extraction utility (optional)\n\nLinkedIn character counter (to enforce the limit)\n\nExamples\nInput: 3 articles on AI in startups, bootstrapping, and the rise of solopreneurs.\n\nOutput:\n\"From AI copilots to lean bootstrapping, the age of the solopreneur is now. 🚀\nEntrepreneurs are rewriting the rules—scaling smarter, faster, and with less.\nEmbrace the shift. The tools are here. The future is solo-powered.\n#Entrepreneurship #AI #Bootstrapping #FutureOfWork\"\n\nSOP (Standard Operating Procedure)\nReceive the 3 articles and scan each for top entrepreneurial insights.\n\nGroup overlapping ideas into 1–2 core themes.\n\nDraft a concise, inspiring LinkedIn post that stays within the character limit.\n\nAdd hashtags and emojis appropriately to maximize reach and engagement."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        96
+      ],
+      "id": "38ecf411-4780-46a8-8f1a-5be8bd839fbc",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        608,
+        256
+      ],
+      "id": "d60c541a-a576-4364-8177-f30e7fd457ac",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "9h0Aj0dDCeImy78b",
+          "name": "OpenAi API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "19KfuRFg4e-E48_oa0I35AmrEVkSdcoDeZ8ZGKRisV88",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Posts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19KfuRFg4e-E48_oa0I35AmrEVkSdcoDeZ8ZGKRisV88/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19KfuRFg4e-E48_oa0I35AmrEVkSdcoDeZ8ZGKRisV88/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Tpoic": "={{ $('Get row(s) in sheet').item.json.Tpoic }}",
+            "Content": "={{ $json.output }}",
+            "Status": "Created"
+          },
+          "matchingColumns": [
+            "Tpoic"
+          ],
+          "schema": [
+            {
+              "id": "Tpoic",
+              "displayName": "Tpoic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Content",
+              "displayName": "Content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1024,
+        96
+      ],
+      "id": "54ae3ab4-2465-4049-928f-033c3f2ed90a",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "MQJpCTks792stGE0",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## LinkedIn Content Creator Workflow\n**It get idea from sheet create a post content for the idea using AI and put the text content back into the sheet** ",
+        "width": 816
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -144
+      ],
+      "typeVersion": 1,
+      "id": "48aecdea-4565-4174-ad44-32510a4873c2",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_TAVILY_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": \"search the web for {{ $json.Tpoic }}\",\n  \"auto_parameters\": false,\n  \"topic\": \"general\",\n  \"search_depth\": \"basic\",\n  \"chunks_per_source\": 3,\n  \"max_results\": 3,\n  \"time_range\": null,\n  \"days\": 7,\n  \"include_answer\": true,\n  \"include_raw_content\": true,\n  \"include_images\": false,\n  \"include_image_descriptions\": false,\n  \"include_favicon\": false,\n  \"include_domains\": [],\n  \"exclude_domains\": [],\n  \"country\": null\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        464,
+        96
+      ],
+      "id": "067660be-a4fb-450d-a24b-bcf95f74ecb5",
+      "name": "Tavily API Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Tavily API Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tavily API Request": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "54a9f3a0-68df-4292-8158-371835881007",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cb81fb3e29671da208c51392b9c20b1e03007b00df3b4082b66b18b620d8b00d"
+  },
+  "id": "tqeN6lHFvHCNqRbo",
+  "tags": []
+}

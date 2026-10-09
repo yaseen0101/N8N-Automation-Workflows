@@ -1,0 +1,1408 @@
+{
+  "name": "Abbas Content Studio Image Genration",
+  "nodes": [
+    {
+      "parameters": {
+        "resource": "chat",
+        "chatModel": "gpt-4o",
+        "prompt": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "=You are an expert advertising creative director and AI image prompt engineer. Your job is to take a raw ad concept description and transform it into a highly detailed, professional image generation prompt.\n\nCRITICAL RULES FOR TEXT ELEMENTS:\n1. ONLY include headline, body text, CTA, or product price if they are explicitly provided in the input and are NOT empty.\n2. If text elements are NOT provided or are empty, do NOT invent, generate, or include ANY text elements in your output. Focus purely on the visual description.\n3. When text elements ARE provided, ALWAYS format them using square brackets - NEVER use quotes:\n   - CORRECT: The headline [Taste the Royalty] is placed...\n   - CORRECT: The CTA [Buy Now] is displayed...\n   - CORRECT: The product price [500] is shown...\n   - WRONG: The headline \"Taste the Royalty\" is placed...\n   - WRONG: The headline \\\"Taste the Royalty\\\" is placed...\n4. Use the EXACT text provided - never modify or create new headlines, CTAs, or prices.\n\nVISUAL ENHANCEMENT RULES:\n5. Expand the concept with rich visual details: lighting, composition, textures, colors, mood, camera angle\n6. Consider the aspect ratio for composition:\n   - 1:1 = square, centered composition\n   - 16:9 = wide landscape, cinematic\n   - 9:16 = tall portrait, vertical focus\n7. Focus on commercial/advertising quality: clean, professional, high-end look\n\nAD TYPE HANDLING:\n8. If ad type is \"no-text-avatar\": explicitly state \"No text, no words, no letters, no watermarks anywhere in the image\" and ignore any text fields even if provided.\n9. If ad type is \"with-text\" AND text elements are provided: incorporate the headline/body/CTA text placement naturally using [brackets] format, describing their position, font style, and visual integration.\n10. If ad type is \"with-text\" BUT no text elements are provided: focus only on visual description without mentioning any text.\n\nOUTPUT REQUIREMENTS:\n- Output ONLY the enhanced prompt text, nothing else\n- Keep the prompt under 900 characters\n- Make it vivid, specific, and optimized for AI image generation\n- NEVER use quotation marks for text elements - ALWAYS use [square brackets]"
+            },
+            {
+              "content": "=Enhance this ad concept for image generation:\n\nOriginal concept: {{ $json.adConcept }}\nAd type: {{ $json.adType }}\nAspect ratio: {{ $json.aspectRatio }}\nLanguage/market: {{ $json.language }}\nHeadline: {{ $json.headline }}\nBody text: {{ $json.bodyText }}\nCTA text: {{ $json.ctaText }}\nProduct Price: {{ $json.productPrice }}\n"
+            }
+          ]
+        },
+        "options": {
+          "maxTokens": 500,
+          "temperature": 0.7
+        },
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1.1,
+      "position": [
+        640,
+        -80
+      ],
+      "id": "03d57d95-a56e-46a4-a7af-3b8670dda3b1",
+      "name": "Enhance Ad Concept1",
+      "credentials": {
+        "openAiApi": {
+          "id": "HwGA4WVLcQWjzNhN",
+          "name": "OpenAi ChatGPT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "52eca12b-921d-4dbc-8a0c-420fb688fe55",
+              "name": "prompt",
+              "value": "={{ $json.prompt }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        992,
+        -80
+      ],
+      "id": "bfdfaeb7-1ef0-4dba-aa86-5ca2675ae15d",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get enhanced concept from current input\nconst enhancedConcept = $input.first().json.content || $input.first().json.message?.content || '';\n\n// Set defaults - you'll need to pass these through your workflow\n// or change 'Extract Input1' to your actual node name\nconst variations = $('Extract Input').first().json.variations; // Change this or pass it through\nconst aspectRatio = '1:1';\nconst adType = 'with-text';\nconst adConcept = '';\n\nconst styleModifiers = [\n  'Professional studio lighting with soft diffused highlights and gentle shadows, ultra-sharp focus, 8K commercial photography quality',\n  'Dramatic cinematic lighting with rich contrast and warm golden tones, depth of field effect, premium advertising look',\n  'Bright and vibrant natural lighting with clean minimalist aesthetic, high-key photography style, modern and fresh feel',\n  'Moody atmospheric lighting with cool blue undertones and selective focus, luxury brand aesthetic, editorial quality',\n  'Soft ethereal glow with pastel color grading and dreamy bokeh background, elegant and sophisticated commercial style'\n];\n\nconst items = [];\nfor (let i = 0; i < Math.min(variations, 5); i++) {\n  const modifier = styleModifiers[i % styleModifiers.length];\n  items.push({\n    json: {\n      variationIndex: i + 1,\n      prompt: enhancedConcept + '. ' + modifier,\n      enhancedConcept: enhancedConcept,\n      originalConcept: adConcept,\n      aspect_ratio: aspectRatio,\n      resolution: '1K',\n      output_format: 'png',\n      adType: adType,\n      totalVariations: variations\n    }\n  });\n}\n\nreturn items;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        832,
+        -80
+      ],
+      "id": "8d32e41b-3030-4139-b743-70dc6c483fe7",
+      "name": "Build Variation Prompts1"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1392,
+        -80
+      ],
+      "id": "c8485cf2-54b9-44b5-9e5c-38289fe92311",
+      "name": "Wait 10s",
+      "webhookId": "wh-wait-nano-banana"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_API_KEY"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1552,
+        -80
+      ],
+      "id": "a6f01118-f655-4ce0-b123-32556c8ba9f8",
+      "name": "Poll Image (GET)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"nano-banana-pro\",\n  \"input\": {\n    \"prompt\": \"{{ $json.prompt }}\",\n    \"aspect_ratio\": \"{{ $('Extract Input').item.json.aspectRatio }}\",\n    \"resolution\": \"1K\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1168,
+        -80
+      ],
+      "id": "afca0007-bcb3-4a41-8ef9-2637cca3e08d",
+      "name": "Create Image (POST)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst allDone = items.every(item => {\n  const state = item.json.data?.state;\n  return state === 'success' || state === 'fail';\n});\n\nif (allDone) {\n  // All tasks finished - send to output 0 (Aggregate Results)\n  return items;\n} else {\n  // Still processing - we'll use the second output\n  // But Code node only has 1 output, so we use a flag\n  return items.map(item => ({\n    json: {\n      ...item.json,\n      allDone: allDone\n    }\n  }));\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1728,
+        -80
+      ],
+      "id": "b02b0c73-1264-40c0-b64f-8ef644836027",
+      "name": "Check All Done"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Poll Image (GET)').item.json.data.state }}",
+                    "rightValue": "success",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "5d365e2d-6c1d-48fd-b1e1-dc6ed403e684"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "success"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b233b687-f81c-428e-bce7-459684a6a34b",
+                    "leftValue": "={{ $('Poll Image (GET)').item.json.data.state }}",
+                    "rightValue": "waiting",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "generating"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "69d8ccbf-d327-4705-9159-b7be48f99e73",
+                    "leftValue": "={{ $('Poll Image (GET)').item.json.data.state }}",
+                    "rightValue": "fail",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "fail"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        1888,
+        -96
+      ],
+      "id": "24ffc1c6-c70d-45a5-9664-07735bb666e8",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2160,
+        -112
+      ],
+      "id": "1a8bbfeb-2d9a-4456-80a8-39674e4114cf",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body;\n\n// Extract and validate selected images\nconst selectedImages = body.selectedImages || [];\nconst hasImages = Array.isArray(selectedImages) && selectedImages.length > 0;\n\nreturn [{\n  json: {\n    // Basic ad configuration\n    adConcept: body.adConcept || '',\n    aspectRatio: body.aspectRatio || '1:1',\n    adType: body.adType || 'no-text-avatar',\n    variations: parseInt(body.variations) || 1,\n    resolution: body.resolution || '1K',\n    language: body.language || 'en-US',\n    \n    // Selected items\n    selectedProduct: body.selectedProduct || '',\n    selectedBrandId: body.selectedBrandId || '',\n    selectedImages: selectedImages,\n    selectedTemplate: body.selectedTemplate || 'ai-decide',\n    \n    // Image validation flag - USE THIS IN YOUR IF NODE\n    hasImages: hasImages,\n    \n    // Text content\n    headline: body.headline || '',\n    bodyText: body.bodyText || '',\n    ctaText: body.ctaText || '',\n    productPrice: body.productPrice || '',\n    \n    // Product data\n    productData: body.productData || {},\n    \n    // Brand data\n    brandData: body.brandData || {},\n    \n    // Additional fields\n    activeTab: body.activeTab || 'create',\n    imageCount: selectedImages.length\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        272,
+        -64
+      ],
+      "id": "3479a6e5-1849-47ac-b0d4-708685efb34d",
+      "name": "Extract Input"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "content-studio",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        80,
+        -64
+      ],
+      "id": "1a58b989-35e9-44b1-8989-fcd53b5a52ae",
+      "name": "Image Ad Webhook",
+      "webhookId": "88b345f7-1fad-469b-86ef-5ad1ebeed34d",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1424,
+        144
+      ],
+      "id": "a7c09637-b1b6-4b94-8cab-02383e07d955",
+      "name": "Wait2",
+      "webhookId": "8363f037-4a20-4f6b-9c5c-780dfb313864"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_API_KEY"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1584,
+        144
+      ],
+      "id": "4963895d-31ca-44a7-8fca-49bdaa3e0571",
+      "name": "Get Image2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"nano-banana-pro\",\n  \"input\": {\n    \"prompt\": \"{{ $json.message.content }}\",\n    \"aspect_ratio\": \"{{ $('Edit Fields1').item.json.aspectRatio }}\",\n    \"resolution\": \"{{ $('Edit Fields1').item.json.resolution }}\",\n    \"output_format\": \"png\",\n    \"image_input\": [\n      \"{{ $('Edit Fields1').item.json.selectedImages[0] }}\"\n    ]\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1248,
+        144
+      ],
+      "id": "bb954b50-6c32-473e-b359-1fe3455f895f",
+      "name": "Edit Images"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0aedbdc8-974f-4902-9db6-07829fbcd6ce",
+              "leftValue": "={{ $json.hasImages }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        432,
+        -64
+      ],
+      "id": "3ed32340-73d7-4e34-a694-932ff40e2d00",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2176,
+        112
+      ],
+      "id": "d5b5792f-325e-4c3c-9c84-cf8980b79fa0",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "chatModel": "gpt-4o",
+        "prompt": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "=You are an expert advertising creative director and AI image composition specialist. Your job is to take a raw ad concept and transform it into a detailed image generation prompt that seamlessly integrates user-provided product images into a professional advertisement composition.\n\nCRITICAL RULES FOR USER-PROVIDED IMAGES:\n\n1. The user has provided product images that MUST be incorporated into the final ad composition.\n2. Your prompt MUST focus on creating a scene where the product images blend naturally and realistically into the environment.\n3. ALWAYS describe how to match the lighting, shadows, reflections, and color temperature between the product and the scene.\n4. Describe the SCENE, ENVIRONMENT, and CONTEXT that will naturally accommodate the product images.\n5. The product should look like it naturally belongs in the scene, not pasted or composited artificially.\n\nLIGHTING AND INTEGRATION RULES:\n\n6. Analyze the lighting in the user-provided product images and describe matching environmental lighting\n7. Specify that shadows from the product should fall naturally on surfaces\n8. If the product is on a surface, describe realistic contact shadows and reflections\n9. Ensure the color temperature and warmth of the scene lighting matches the product image lighting\n10. Describe ambient light sources that would naturally illuminate both the product and the scene consistently\n11. For food products, specify steam, condensation, or freshness indicators that match the scene's atmosphere\n\nCRITICAL RULES FOR TEXT ELEMENTS:\n\n12. ONLY include headline, body text, CTA, or product price if they are explicitly provided in the input and are NOT empty.\n13. If text elements are NOT provided or are empty, do NOT invent, generate, or include ANY text elements in your output.\n14. When text elements ARE provided, ALWAYS format them using square brackets - NEVER use quotes:\n   - CORRECT: The headline [Taste the Royalty] is placed...\n   - CORRECT: The CTA [Buy Now] is displayed...\n   - CORRECT: The product price [500] is shown...\n   - WRONG: The headline \"Taste the Royalty\" is placed...\n15. Use the EXACT text provided - never modify or create new headlines, CTAs, or prices.\n\nVISUAL ENHANCEMENT RULES FOR SEAMLESS COMPOSITION:\n\n16. Describe the surface the product rests on with matching material, texture, and reflectivity\n17. Specify environmental elements that interact with the product naturally (steam rising, condensation on glass, crumbs, garnishes)\n18. Add depth cues like soft background blur that keeps focus on the product while maintaining scene cohesion\n19. Describe how the product casts light or receives light from the environment\n20. Consider the aspect ratio for composition:\n   - 1:1 = square, centered product showcase\n   - 2:3 = portrait, vertical product hero shot\n   - 16:9 = wide landscape, lifestyle scene\n   - 9:16 = tall portrait, mobile-optimized vertical\n21. Focus on photorealistic, commercial-quality integration with consistent lighting across all elements\n22. Describe complementary props and elements that ground the product in the scene realistically\n\nAD TYPE HANDLING:\n\n23. If ad type is \"no-text-avatar\": explicitly state \"No text, no words, no letters, no watermarks anywhere in the image\" and ignore any text fields even if provided. Focus purely on visual product presentation.\n24. If ad type is \"with-text\" AND text elements are provided: describe where text should be placed in relation to the product images using [brackets] format, ensuring text doesn't cover important product details.\n25. If ad type is \"with-text\" BUT no text elements are provided: focus only on visual description without mentioning any text.\n\nSEAMLESS INTEGRATION INSTRUCTIONS:\n\n26. Start your prompt by acknowledging the product images: \"Product images provided will be naturally integrated into...\"\n27. Describe the exact surface material and texture the product sits on (wooden table, marble counter, rustic board, ceramic plate)\n28. Specify realistic physical interaction: the product's weight on the surface, natural settling, realistic placement\n29. Describe matching lighting direction and quality between product and environment (same light source angle, intensity, warmth)\n30. Add environmental atmosphere that envelops the product (restaurant ambiance, kitchen warmth, outdoor natural light)\n31. Specify realistic shadows: contact shadows where product touches surface, cast shadows from ambient light\n32. For reflective surfaces, describe subtle reflections of the product\n33. Ensure color grading and saturation levels are consistent between product and scene\n34. The composition should make the product look photographed in-situ, not composited afterward\n\nFORBIDDEN CHARACTERS AND FORMATTING:\n\n35. NEVER use double quotes (\"\") anywhere in the enhanced prompt\n36. NEVER use backslash-n (\\n) or any newline escape sequences\n37. NEVER use forward slashes (/) or backslashes (\\) unless describing a ratio (e.g., 2:3 aspect ratio)\n38. Keep all text in a single continuous paragraph without line breaks\n39. Use commas and semicolons for separation instead of line breaks\n\nOUTPUT REQUIREMENTS:\n\n- Output ONLY the enhanced prompt text, nothing else\n- Keep the prompt under 1200 characters\n- Make it vivid, specific, and optimized for seamless, photorealistic image composition\n- NEVER use quotation marks for text elements - ALWAYS use [square brackets]\n- Focus on creating natural, believable integration where the product looks like it was photographed as part of the original scene\n- Emphasize matching lighting, shadows, reflections, color temperature, and physical placement\n- Output must be a single continuous paragraph with no line breaks, quotes, or slashes"
+            },
+            {
+              "content": "=Enhance this ad concept for image generation with provided product images:\n\nOriginal concept: {{ $json.adConcept }}\nAd type: {{ $json.adType }}\nAspect ratio: {{ $json.aspectRatio }}\nLanguage/market: {{ $json.language }}\n\nProduct images to integrate:\nImage 1: {{ $json.selectedImages[0] }}\nImage 2: {{ $json.selectedImages[1] }}\n\nText elements (only if provided):\nHeadline: {{ $json.headline }}\nBody text: {{ $json.bodyText }}\nCTA text: {{ $json.ctaText }}\nProduct Price: {{ $json.productPrice }}\n\nCreate a professional advertising composition that integrates these product images seamlessly."
+            }
+          ]
+        },
+        "options": {
+          "maxTokens": 500,
+          "temperature": 0.7
+        },
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1.1,
+      "position": [
+        1056,
+        144
+      ],
+      "id": "b37d4d5f-ec18-4302-bfe2-3d193a56ce86",
+      "name": "Enhance Ad Concept",
+      "credentials": {
+        "openAiApi": {
+          "id": "HwGA4WVLcQWjzNhN",
+          "name": "OpenAi ChatGPT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f8c0e64f-ea0a-4fed-b359-868785e82b7a",
+              "name": "adConcept",
+              "value": "={{ $json.adConcept }}",
+              "type": "string"
+            },
+            {
+              "id": "11932477-81fd-41f6-90f2-5c582512edca",
+              "name": "aspectRatio",
+              "value": "={{ $json.aspectRatio }}",
+              "type": "string"
+            },
+            {
+              "id": "cbfc5f1d-2ede-440b-935a-a203837b0266",
+              "name": "adType",
+              "value": "={{ $json.adType }}",
+              "type": "string"
+            },
+            {
+              "id": "2777c3b1-2cfc-453b-86d2-beaac928e000",
+              "name": "variations",
+              "value": "={{ $json.variations }}",
+              "type": "number"
+            },
+            {
+              "id": "4379e763-4981-4138-9e9c-ea8ab70203ec",
+              "name": "resolution",
+              "value": "={{ $json.resolution }}",
+              "type": "string"
+            },
+            {
+              "id": "aa5ed1dc-cd47-43d8-9611-2c4102ded083",
+              "name": "language",
+              "value": "={{ $json.language }}",
+              "type": "string"
+            },
+            {
+              "id": "94000bf4-e40b-4253-851f-13f4e9f284ab",
+              "name": "selectedProduct",
+              "value": "={{ $json.selectedProduct }}",
+              "type": "string"
+            },
+            {
+              "id": "888fae3b-467e-468e-be99-9612799342a1",
+              "name": "selectedBrandId",
+              "value": "={{ $json.selectedBrandId }}",
+              "type": "string"
+            },
+            {
+              "id": "90e2a90a-7a66-4905-8786-60f1dcba375e",
+              "name": "selectedImages",
+              "value": "={{ $json.selectedImages }}",
+              "type": "array"
+            },
+            {
+              "id": "e8c438d5-2d18-4c9a-8564-160bb67eb739",
+              "name": "headline",
+              "value": "={{ $json.headline }}",
+              "type": "string"
+            },
+            {
+              "id": "d224800e-cfdc-4dac-9156-4fd285b186b1",
+              "name": "bodyText",
+              "value": "={{ $json.bodyText }}",
+              "type": "string"
+            },
+            {
+              "id": "7929f89e-b4b0-48e7-8360-637d44ce3d23",
+              "name": "ctaText",
+              "value": "={{ $json.ctaText }}",
+              "type": "string"
+            },
+            {
+              "id": "0a79f4d9-8d8f-4f9f-bd4f-baffefae02e8",
+              "name": "productPrice",
+              "value": "={{ $json.productPrice }}",
+              "type": "string"
+            },
+            {
+              "id": "df6c9a0a-2085-448e-8425-afecbcbb6c4d",
+              "name": "selectedTemplate",
+              "value": "={{ $json.selectedTemplate }}",
+              "type": "string"
+            },
+            {
+              "id": "fc25b72c-1013-4f3f-bdcc-a2fb16d27bfb",
+              "name": "imageCount",
+              "value": "={{ $json.imageCount }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        848,
+        144
+      ],
+      "id": "b3996973-f5e5-4ee6-8104-af000ac3b2c4",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst allDone = items.every(item => {\n  const state = item.json.data?.state;\n  return state === 'success' || state === 'fail';\n});\n\nif (allDone) {\n  // All tasks finished - send to output 0 (Aggregate Results)\n  return items;\n} else {\n  // Still processing - we'll use the second output\n  // But Code node only has 1 output, so we use a flag\n  return items.map(item => ({\n    json: {\n      ...item.json,\n      allDone: allDone\n    }\n  }));\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1728,
+        144
+      ],
+      "id": "bfaf8ec4-ac1b-4fc9-90b8-06ba2019adb2",
+      "name": "Check All Done1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.data.state }}",
+                    "rightValue": "success",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "5d365e2d-6c1d-48fd-b1e1-dc6ed403e684"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "success"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b233b687-f81c-428e-bce7-459684a6a34b",
+                    "leftValue": "={{ $json.data.state }}",
+                    "rightValue": "waiting",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "generating"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "69d8ccbf-d327-4705-9159-b7be48f99e73",
+                    "leftValue": "={{ $json.data.state }}",
+                    "rightValue": "fail",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "fail"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        1888,
+        128
+      ],
+      "id": "99ceb46f-2c5d-459c-9060-50d83712b17a",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1440,
+        384
+      ],
+      "id": "2c269e54-af0f-4f04-ba0d-0e88ad9077e2",
+      "name": "Wait",
+      "webhookId": "8363f037-4a20-4f6b-9c5c-780dfb313864"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_API_KEY"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1600,
+        384
+      ],
+      "id": "b2b7b849-2f9f-41b0-b0ae-cb5e6cd99f91",
+      "name": "Get Image"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"nano-banana-pro\",\n  \"input\": {\n    \"prompt\": \"{{ $json.message.content }}\",\n    \"aspect_ratio\": \"{{ $('Edit Fields2').item.json.aspectRatio }}\",\n    \"resolution\": \"{{ $('Edit Fields2').item.json.resolution }}\",\n    \"output_format\": \"png\",\n    \"image_input\": [\n      \"{{ $('Edit Fields2').item.json.selectedImages[0] }}\",\n      \"{{ $('Edit Fields2').item.json.selectedImages[1] }}\"\n    ]\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1248,
+        384
+      ],
+      "id": "5f5d8b1d-941f-4d07-b7a5-2f0fd9dcf6f6",
+      "name": "Edit Images1"
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2192,
+        352
+      ],
+      "id": "ae657c1e-de88-4920-a364-ba6000e391cd",
+      "name": "Respond to Webhook2"
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "chatModel": "gpt-4o",
+        "prompt": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "=You are an expert advertising creative director and AI image composition specialist. Your job is to take a raw ad concept and transform it into a detailed image generation prompt that seamlessly integrates user-provided product images into a professional advertisement composition.\n\nCRITICAL RULES FOR USER-PROVIDED IMAGES:\n\n1. The user has provided product images that MUST be incorporated into the final ad composition.\n2. Your prompt should describe how to blend/composite these product images into an advertising scene.\n3. Focus on describing the SCENE, ENVIRONMENT, and CONTEXT around the product images, not recreating the product itself.\n4. Describe placement, lighting integration, background elements, and overall composition that will make the product images shine.\n\nCRITICAL RULES FOR TEXT ELEMENTS:\n\n5. ONLY include headline, body text, CTA, or product price if they are explicitly provided in the input and are NOT empty.\n6. If text elements are NOT provided or are empty, do NOT invent, generate, or include ANY text elements in your output.\n7. When text elements ARE provided, ALWAYS format them using square brackets - NEVER use quotes:\n   - CORRECT: The headline [Taste the Royalty] is placed...\n   - CORRECT: The CTA [Buy Now] is displayed...\n   - CORRECT: The product price [500] is shown...\n   - WRONG: The headline \"Taste the Royalty\" is placed...\n8. Use the EXACT text provided - never modify or create new headlines, CTAs, or prices.\n\nVISUAL ENHANCEMENT RULES FOR IMAGE COMPOSITION:\n\n9. Describe the advertising scene/environment that will surround the product images\n10. Specify how the provided product images should be positioned and integrated\n11. Add environmental elements: background, surface, props, atmosphere, lighting\n12. Consider the aspect ratio for composition:\n   - 1:1 = square, centered product showcase\n   - 2:3 = portrait, vertical product hero shot\n   - 16:9 = wide landscape, lifestyle scene\n   - 9:16 = tall portrait, mobile-optimized vertical\n13. Focus on commercial/advertising quality: clean, professional, appetizing/appealing presentation\n14. Describe complementary elements that enhance the product without overshadowing it\n\nAD TYPE HANDLING:\n\n15. If ad type is \"no-text-avatar\": explicitly state \"No text, no words, no letters, no watermarks anywhere in the image\" and ignore any text fields even if provided. Focus purely on visual product presentation.\n16. If ad type is \"with-text\" AND text elements are provided: describe where text should be placed in relation to the product images using [brackets] format, ensuring text doesn't cover important product details.\n17. If ad type is \"with-text\" BUT no text elements are provided: focus only on visual description without mentioning any text.\n\nIMAGE INTEGRATION INSTRUCTIONS:\n\n18. Start your prompt by acknowledging the product images: \"Product images provided will be composited into...\"\n19. Describe the ideal background, setting, or scene for these products\n20. Suggest lighting that complements the product images (soft studio lighting, natural light, dramatic shadows, etc.)\n21. Describe supporting elements (props, surfaces, garnishes for food, accessories for products)\n22. Ensure the composition makes the product the hero while creating an aspirational advertising aesthetic\n\nFORBIDDEN CHARACTERS AND FORMATTING:\n\n23. NEVER use double quotes (\"\") anywhere in the enhanced prompt\n24. NEVER use backslash-n (\\n) or any newline escape sequences\n25. NEVER use forward slashes (/) or backslashes (\\) unless describing a ratio (e.g., 2:3 aspect ratio)\n26. Keep all text in a single continuous paragraph without line breaks\n27. Use commas and semicolons for separation instead of line breaks\n\nOUTPUT REQUIREMENTS:\n\n- Output ONLY the enhanced prompt text, nothing else\n- Keep the prompt under 1000 characters\n- Make it vivid, specific, and optimized for AI image composition tools\n- NEVER use quotation marks for text elements - ALWAYS use [square brackets]\n- Focus on creating a professional ad scene that showcases the provided product images beautifully\n- Output must be a single continuous paragraph with no line breaks, quotes, or slashes"
+            },
+            {
+              "content": "=Enhance this ad concept for image generation with provided product images:\n\nOriginal concept: {{ $json.adConcept }}\nAd type: {{ $json.adType }}\nAspect ratio: {{ $json.aspectRatio }}\nLanguage/market: {{ $json.language }}\n\nProduct images to integrate:\nImage 1: {{ $json.selectedImages[0] }}\nImage 2: {{ $json.selectedImages[1] }}\n\nText elements (only if provided):\nHeadline: {{ $json.headline }}\nBody text: {{ $json.bodyText }}\nCTA text: {{ $json.ctaText }}\nProduct Price: {{ $json.productPrice }}\n\nCreate a professional advertising composition that integrates these product images seamlessly."
+            }
+          ]
+        },
+        "options": {
+          "maxTokens": 500,
+          "temperature": 0.7
+        },
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1.1,
+      "position": [
+        1056,
+        384
+      ],
+      "id": "70d21809-476e-4433-b79d-e2788d79d89e",
+      "name": "Enhance Ad Concept2",
+      "credentials": {
+        "openAiApi": {
+          "id": "HwGA4WVLcQWjzNhN",
+          "name": "OpenAi ChatGPT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f8c0e64f-ea0a-4fed-b359-868785e82b7a",
+              "name": "adConcept",
+              "value": "={{ $json.adConcept }}",
+              "type": "string"
+            },
+            {
+              "id": "11932477-81fd-41f6-90f2-5c582512edca",
+              "name": "aspectRatio",
+              "value": "={{ $json.aspectRatio }}",
+              "type": "string"
+            },
+            {
+              "id": "cbfc5f1d-2ede-440b-935a-a203837b0266",
+              "name": "adType",
+              "value": "={{ $json.adType }}",
+              "type": "string"
+            },
+            {
+              "id": "2777c3b1-2cfc-453b-86d2-beaac928e000",
+              "name": "variations",
+              "value": "={{ $json.variations }}",
+              "type": "number"
+            },
+            {
+              "id": "4379e763-4981-4138-9e9c-ea8ab70203ec",
+              "name": "resolution",
+              "value": "={{ $json.resolution }}",
+              "type": "string"
+            },
+            {
+              "id": "aa5ed1dc-cd47-43d8-9611-2c4102ded083",
+              "name": "language",
+              "value": "={{ $json.language }}",
+              "type": "string"
+            },
+            {
+              "id": "94000bf4-e40b-4253-851f-13f4e9f284ab",
+              "name": "selectedProduct",
+              "value": "={{ $json.selectedProduct }}",
+              "type": "string"
+            },
+            {
+              "id": "888fae3b-467e-468e-be99-9612799342a1",
+              "name": "selectedBrandId",
+              "value": "={{ $json.selectedBrandId }}",
+              "type": "string"
+            },
+            {
+              "id": "90e2a90a-7a66-4905-8786-60f1dcba375e",
+              "name": "selectedImages",
+              "value": "={{ $json.selectedImages }}",
+              "type": "array"
+            },
+            {
+              "id": "e8c438d5-2d18-4c9a-8564-160bb67eb739",
+              "name": "headline",
+              "value": "={{ $json.headline }}",
+              "type": "string"
+            },
+            {
+              "id": "d224800e-cfdc-4dac-9156-4fd285b186b1",
+              "name": "bodyText",
+              "value": "={{ $json.bodyText }}",
+              "type": "string"
+            },
+            {
+              "id": "7929f89e-b4b0-48e7-8360-637d44ce3d23",
+              "name": "ctaText",
+              "value": "={{ $json.ctaText }}",
+              "type": "string"
+            },
+            {
+              "id": "0a79f4d9-8d8f-4f9f-bd4f-baffefae02e8",
+              "name": "productPrice",
+              "value": "={{ $json.productPrice }}",
+              "type": "string"
+            },
+            {
+              "id": "df6c9a0a-2085-448e-8425-afecbcbb6c4d",
+              "name": "selectedTemplate",
+              "value": "={{ $json.selectedTemplate }}",
+              "type": "string"
+            },
+            {
+              "id": "fc25b72c-1013-4f3f-bdcc-a2fb16d27bfb",
+              "name": "imageCount",
+              "value": "={{ $json.imageCount }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        848,
+        384
+      ],
+      "id": "008c5222-d305-4c59-a9b8-7c63177dea5b",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst allDone = items.every(item => {\n  const state = item.json.data?.state;\n  return state === 'success' || state === 'fail';\n});\n\nif (allDone) {\n  // All tasks finished - send to output 0 (Aggregate Results)\n  return items;\n} else {\n  // Still processing - we'll use the second output\n  // But Code node only has 1 output, so we use a flag\n  return items.map(item => ({\n    json: {\n      ...item.json,\n      allDone: allDone\n    }\n  }));\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1744,
+        384
+      ],
+      "id": "413f1490-4abd-48bb-863f-4be3d9b6539a",
+      "name": "Check All Done2"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.data.state }}",
+                    "rightValue": "success",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "5d365e2d-6c1d-48fd-b1e1-dc6ed403e684"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "success"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b233b687-f81c-428e-bce7-459684a6a34b",
+                    "leftValue": "={{ $json.data.state }}",
+                    "rightValue": "waiting",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "generating"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "69d8ccbf-d327-4705-9159-b7be48f99e73",
+                    "leftValue": "={{ $json.data.state }}",
+                    "rightValue": "fail",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "fail"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        1904,
+        368
+      ],
+      "id": "680578c3-77f9-4065-8c66-46ea98a6c039",
+      "name": "Switch2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f73a73bf-4a59-4d48-89fe-3312bf916cf2",
+              "leftValue": "={{ $json.imageCount }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        608,
+        160
+      ],
+      "id": "ce2b1f9a-65c6-4d06-ab0b-4bec2c542944",
+      "name": "If1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Enhance Ad Concept1": {
+      "main": [
+        [
+          {
+            "node": "Build Variation Prompts1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Create Image (POST)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Variation Prompts1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 10s": {
+      "main": [
+        [
+          {
+            "node": "Poll Image (GET)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Poll Image (GET)": {
+      "main": [
+        [
+          {
+            "node": "Check All Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Image (POST)": {
+      "main": [
+        [
+          {
+            "node": "Wait 10s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check All Done": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait 10s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Input": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Ad Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Get Image2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Image2": {
+      "main": [
+        [
+          {
+            "node": "Check All Done1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Images": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Enhance Ad Concept1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enhance Ad Concept": {
+      "main": [
+        [
+          {
+            "node": "Edit Images",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Enhance Ad Concept",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check All Done1": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Get Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Image": {
+      "main": [
+        [
+          {
+            "node": "Check All Done2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Images1": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enhance Ad Concept2": {
+      "main": [
+        [
+          {
+            "node": "Edit Images1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Enhance Ad Concept2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check All Done2": {
+      "main": [
+        [
+          {
+            "node": "Switch2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch2": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "1029d29b-26ef-4e45-97f9-45c19619541a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c9994b411d63e3648311d60e38c4291fc3bcf9c37f1bdffdb109561f89a07af6"
+  },
+  "id": "oUgns1pnnfxX_35eqCoyO",
+  "tags": [
+    {
+      "updatedAt": "2026-02-07T16:52:44.807Z",
+      "createdAt": "2026-01-30T19:51:21.286Z",
+      "id": "ywFv3jDnqGA7EYmL",
+      "name": "Conatent_Studio_Software"
+    }
+  ]
+}

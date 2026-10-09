@@ -1,0 +1,283 @@
+{
+  "name": "Website Chatbot Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "options": {
+          "systemMessage": "You are a helpful assistant for Cobani Flow. You have a Google Sheet Tool called \"Inventory Sheet\" where I store information about my restaurant's inventory. Whenever you need to access the inventory information, you have to access that tool. "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        176,
+        32
+      ],
+      "id": "b927def1-7afd-4bed-bb2c-84be7f229220",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        16,
+        304
+      ],
+      "id": "d85d029f-5c8b-4041-9b1a-788e1559df39",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "tr89skUljdwqI4hb",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        128,
+        416
+      ],
+      "id": "8ddede22-06c6-4008-a3cf-ebe85c47cb79",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "content": "## ChatBot To Website\n\nTo Add chatbot to your website either if it is Wordpress website or Self-Coded Website, make sure you add a pice of code :\n\nCode:\n\n<link href=\"https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css\" rel=\"stylesheet\" />\n<script type=\"module\">\n\timport { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';\n\n\tcreateChat({\n\t\twebhookUrl: 'https://n8n.srv1001257.hstgr.cloud/webhook/3391d809-49c1-47c5-893d-1e9de29bf064/chat'\n\t});\n</script>\n\nYOUR_PRODUCTION_WEBHOOK_URL: https://n8n.srv1001257.hstgr.cloud/webhook/3391d809-49c1-47c5-893d-1e9de29bf064/chat\n\nso just replace the Webhook URL for every chat in code.",
+        "height": 496,
+        "width": 560
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -688,
+        -192
+      ],
+      "typeVersion": 1,
+      "id": "4eab6f63-ed27-465b-9324-ffb2bac89f39",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTool",
+      "typeVersion": 3,
+      "position": [
+        256,
+        416
+      ],
+      "id": "e3d4ded8-6daf-423e-b846-2c9bd58ed6bd",
+      "name": "Upload file in Google Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "xfZP8TuUjo8wV2L5",
+          "name": "Google Drive account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        384,
+        352
+      ],
+      "id": "26693f32-4c6b-4b55-b2e3-cda399d3f916",
+      "name": "Send a message in Gmail",
+      "webhookId": "2eaf2750-1b3d-44fb-b80a-521182f1a80b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "LtxOdwu3Ak8HXdis",
+          "name": "Gmail account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        544,
+        400
+      ],
+      "id": "74d1d1af-a40a-4cb5-9f0d-e6ed59d2fbda",
+      "name": "Create an event in Google Calendar",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "public": true,
+        "mode": "webhook",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -64,
+        16
+      ],
+      "id": "7df5baf2-5f19-438f-a644-7d36825fc767",
+      "name": "When chat message received",
+      "webhookId": "3391d809-49c1-47c5-893d-1e9de29bf064"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1F4BsOX-VdbNE6wQVWu-6fUTypGvOGCfn0g1WPATm6zM",
+          "mode": "list",
+          "cachedResultName": "SupplyChainData",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1F4BsOX-VdbNE6wQVWu-6fUTypGvOGCfn0g1WPATm6zM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Wh",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1F4BsOX-VdbNE6wQVWu-6fUTypGvOGCfn0g1WPATm6zM/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        656,
+        304
+      ],
+      "id": "6ea86462-e77f-4d40-916a-1f7d2c866c29",
+      "name": "Inventory Sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Lv3cjuhVBlOHob6e",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file in Google Drive": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an event in Google Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Inventory Sheet": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9f38a63a-2f39-485d-b89a-4385a3e13633",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "539cd56ece7a2f997e08e80a4f924c22976be93f154b9f0f08a285e0f93db7e2"
+  },
+  "id": "t6PUYKPwz0KSpdBV",
+  "tags": []
+}

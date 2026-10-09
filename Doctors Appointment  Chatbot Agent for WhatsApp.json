@@ -1,0 +1,1898 @@
+{
+  "name": "Doctors Appointment  Chatbot Agent for WhatsApp",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Cancel Booking Workflow.\n- **Trigger:** User / Doctor cancels the appointment from Google Sheet.\n- **If 1:** Detects the cancellation event in the sheet.\n- **If 2:** Sends a WhatsApp message to the user informing them about the cancellation.\n- **If 2:** Verifies if payment was completed via Stripe.\n- **Stripe (if paid):** Initiates a refund using Stripe API & Updates the Refund Status in sheet.\n\n#",
+        "height": 272,
+        "width": 416,
+        "color": 3
+      },
+      "id": "bd8ff24d-a7fd-4180-b4b9-b1e38b8d551d",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1184,
+        -1840
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Appointment Reminder Workflow\n- **Trigger:** Scheduled trigger fires daily at 8:00 AM.\n- **AI Agent Action 1:** Retrieves today's appointments.\n- **AI Agent Action 2:** Generates personalized reminder messages.\n- **AI Agent Action 3:** Sends the reminder to each user via WhatsApp.\n\n#",
+        "height": 192,
+        "width": 416,
+        "color": 4
+      },
+      "id": "51772cd6-0318-4099-8642-cb2906da1b30",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        960,
+        960
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Payment Verification Workflow\n- **Trigger:** Stripe webhook triggers on successful payment.\n- **Step 1:** Call Stripe API to retrieve payment metadata.\n- **Step 2:** Update the corresponding appointment row in Google Sheet:\n  - Set `status` to `Confirmed`\n  - Set `payment_status` to `Paid`\n  - Save `Stripe Payment Intent` for future refund reference\n- **Step 3:** Send payment confirmation message to the user via WhatsApp.\n",
+        "height": 304,
+        "width": 416
+      },
+      "id": "15a6b8a4-175d-47a6-8994-ba37d5af2b2e",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1184,
+        -1376
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "options": {
+          "timezone": "Asia/Kolkata"
+        }
+      },
+      "id": "7aa59e98-c4c3-45e9-ae3a-ef1e22b54146",
+      "name": "Date & Time",
+      "type": "n8n-nodes-base.dateTimeTool",
+      "position": [
+        1488,
+        432
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1JCxpEwd3HvTJ3fV9ijqhBmvnprtWouZuttsTCSEBKIE",
+          "mode": "list",
+          "cachedResultName": "Doctors Appointment (n8n)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JCxpEwd3HvTJ3fV9ijqhBmvnprtWouZuttsTCSEBKIE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Patients",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JCxpEwd3HvTJ3fV9ijqhBmvnprtWouZuttsTCSEBKIE/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "whatsapp_number",
+              "lookupValue": "={{ $('Webhook').item.json.body.data.key.remoteJid.split('@')[0] }}\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0afd4d50-93d7-4802-a648-583862ea8057",
+      "name": "Get Patient List For User",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "position": [
+        1680,
+        304
+      ],
+      "typeVersion": 4.7,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XALMCe1OJMWA9LO5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "id": "f61cadf1-ca02-4256-8eab-9d73fac9a8b7",
+      "name": "Add Patient",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "position": [
+        1664,
+        112
+      ],
+      "typeVersion": 4.7,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XALMCe1OJMWA9LO5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        }
+      },
+      "id": "a79fa305-3c6e-421a-a52d-fdf130726558",
+      "name": "Get All Appointments",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "position": [
+        2048,
+        304
+      ],
+      "typeVersion": 4.7
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1JCxpEwd3HvTJ3fV9ijqhBmvnprtWouZuttsTCSEBKIE",
+          "mode": "list",
+          "cachedResultName": "Doctors Appointment (n8n)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JCxpEwd3HvTJ3fV9ijqhBmvnprtWouZuttsTCSEBKIE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 602165627,
+          "mode": "list",
+          "cachedResultName": "Appointments",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JCxpEwd3HvTJ3fV9ijqhBmvnprtWouZuttsTCSEBKIE/edit#gid=602165627"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "appointment_id": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('appointment_id__using_to_match_', ``, 'string') }}",
+            "date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('date', ``, 'string') }}",
+            "time": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('time', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "appointment_id"
+          ],
+          "schema": [
+            {
+              "id": "appointment_id",
+              "displayName": "appointment_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "patient_id",
+              "displayName": "patient_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "whatsapp_number",
+              "displayName": "whatsapp_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "time",
+              "displayName": "time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payment_method",
+              "displayName": "payment_method",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "payment_status",
+              "displayName": "payment_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "stripe_payment_intent",
+              "displayName": "stripe_payment_intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "d45bb7ab-9409-4770-a13e-343a0631b0ae",
+      "name": "Reschedule Appointment",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "position": [
+        2048,
+        112
+      ],
+      "typeVersion": 4.7,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XALMCe1OJMWA9LO5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1JCxpEwd3HvTJ3fV9ijqhBmvnprtWouZuttsTCSEBKIE",
+          "mode": "list",
+          "cachedResultName": "Doctors Appointment (n8n)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JCxpEwd3HvTJ3fV9ijqhBmvnprtWouZuttsTCSEBKIE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 602165627,
+          "mode": "list",
+          "cachedResultName": "Appointments",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JCxpEwd3HvTJ3fV9ijqhBmvnprtWouZuttsTCSEBKIE/edit#gid=602165627"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "appointment_id": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('appointment_id__using_to_match_', ``, 'string') }}",
+            "status": "Cancelled"
+          },
+          "matchingColumns": [
+            "appointment_id"
+          ],
+          "schema": [
+            {
+              "id": "appointment_id",
+              "displayName": "appointment_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "patient_id",
+              "displayName": "patient_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "whatsapp_number",
+              "displayName": "whatsapp_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "time",
+              "displayName": "time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "payment_method",
+              "displayName": "payment_method",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "payment_status",
+              "displayName": "payment_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "stripe_payment_intent",
+              "displayName": "stripe_payment_intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "8dfdb74d-d5b4-4d5a-8339-b040b7a2e4a4",
+      "name": "Cancel Appointment",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "position": [
+        2240,
+        112
+      ],
+      "typeVersion": 4.7,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XALMCe1OJMWA9LO5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1JCxpEwd3HvTJ3fV9ijqhBmvnprtWouZuttsTCSEBKIE",
+          "mode": "list",
+          "cachedResultName": "Doctors Appointment (n8n)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JCxpEwd3HvTJ3fV9ijqhBmvnprtWouZuttsTCSEBKIE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1495436852,
+          "mode": "list",
+          "cachedResultName": "Config",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JCxpEwd3HvTJ3fV9ijqhBmvnprtWouZuttsTCSEBKIE/edit#gid=1495436852"
+        },
+        "options": {}
+      },
+      "id": "a656f099-7a2d-464a-a228-081b232cddfe",
+      "name": "Config",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "position": [
+        2240,
+        304
+      ],
+      "typeVersion": 4.7,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XALMCe1OJMWA9LO5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Payment Link Generation\n- **Trigger:** New Appointment Added in Sheet\n- **Step 1:** Checks if payment method is Stripe.\n- **Step 2:** Creating Stripe Session Checkout Payment Link With metadata:\n   - appointmentId\n   - user whatsapp number \n- **Step 3:** Send payment Link to the user via WhatsApp.\n",
+        "height": 224,
+        "width": 416,
+        "color": 5
+      },
+      "id": "82291091-b73e-48ea-849f-88409ab83ec7",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1200,
+        -912
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 🚀 Try It Out: AI-Powered WhatsApp Booking Assistant\n\nManage your **appointments** with ease — book, reschedule, cancel, and even **collect payments online** — all through WhatsApp!\n\n### ✅ What This Does:\nLaunch a smart AI assistant that handles:\n- 🗓 **Appointment bookings**  \n- 🔁 **Rescheduling**  \n- ❌ **Cancellations**  \n- 💳 **Online payments via Stripe**\n\nAll actions are handled directly through **WhatsApp** for a smooth and intuitive user experience.\n\n---\n\n### 🛠 How to Get Started\n\n1. **Connect Your Credentials:**\n   - WhatsApp API  \n   - Google Gemini API  \n   - Google Sheet  \n   - Stripe Secret Key  \n\n2. **Activate the Workflow**\n\n3. **Message your WhatsApp bot** with any of the following to get started:\n   - `\"Hi\"`  \n   - `\"Create New Booking\"`  \n\n---\n\n### 💬 Need Help?\n\nLearn how to create this appointment booking workflow from scratch.\nFollow this video : [YouTube](https://youtube.com)\n\n**Happy building!**  \n— [GreatStack](https://greatstack.dev)\n",
+        "height": 1016,
+        "width": 444,
+        "color": 5
+      },
+      "id": "de7a9e4f-d269-45fa-9c7a-df268ccd3276",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        752,
+        -448
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nThis nodes allows your agent create and get data from Google Sheets\n",
+        "height": 484,
+        "width": 756,
+        "color": 7
+      },
+      "id": "8abc73c2-7bd3-49d5-92d9-867de2162780",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note16",
+      "type": "n8n-nodes-base.stickyNote",
+      "creator": "Lucas Peyrin",
+      "position": [
+        1632,
+        64
+      ],
+      "typeVersion": 1,
+      "notes": "© 2025 Lucas Peyrin"
+    },
+    {
+      "parameters": {
+        "content": "Appointment Booking AI Assistant:\n1. Create Booking\n2. View Upcoming Appointment \n3. Rescheduling\n4. Cancellation\n\nEdit the **System Message** to adjust your agent’s thinking, behavior, and replies.\n\n\n\n\n\n\n\n\n\n\n",
+        "height": 380,
+        "width": 396,
+        "color": 7
+      },
+      "id": "442aa931-3c2f-41bf-b69f-a449fecea33b",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "creator": "Lucas Peyrin",
+      "position": [
+        1712,
+        -464
+      ],
+      "typeVersion": 1,
+      "notes": "© 2025 Lucas Peyrin"
+    },
+    {
+      "parameters": {
+        "content": "⚙️ **Setup Instructions**:\n\n1. Edit the **Get Appointment Sheet** node → Replace `YOUR_SPREADSHEET_ID_HERE` and `YOUR_SHEET_TAB_ID_HERE` with your Google Sheet details.\n2. Edit the **Send WhatsApp Message** node → Replace `YOUR_PHONE_NUMBER_HERE` with a test phone number.\n3. In n8n Credentials Manager:\n   - Add your Google Sheets credentials\n   - Add your WhatsApp Business Cloud credentials\n4. Activate the workflow. At 8 AM daily, reminders will be sent automatically.\n",
+        "height": 524,
+        "width": 420,
+        "color": 7
+      },
+      "id": "bd6f508d-dfd1-4687-83d6-98a496b437b0",
+      "name": "Setup Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1728,
+        640
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "id": "8a69e5e7-940a-4230-938f-681e7075d01c",
+      "name": "Schedule Trigger1",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        1472,
+        992
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "documentId": "YOUR_SPREADSHEET_ID_HERE",
+        "sheetName": "YOUR_SHEET_TAB_ID_HERE",
+        "options": {}
+      },
+      "id": "f34681c9-18e9-4cc6-995d-738dcf1be708",
+      "name": "Get Appointment sheet1",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "position": [
+        1792,
+        1216
+      ],
+      "typeVersion": 4.7,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XALMCe1OJMWA9LO5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "timezone": "Asia/Islamabad"
+        }
+      },
+      "id": "d4b4402d-5950-4fca-8ce0-0884b0806395",
+      "name": "Date & Time2",
+      "type": "n8n-nodes-base.dateTimeTool",
+      "position": [
+        1936,
+        1216
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json['Readable date'] }}",
+        "options": {
+          "systemMessage": "You are an AI assistant responsible for sending WhatsApp reminders for scheduled appointments. Follow the steps below:\n\n1. Fetch appointments from the Google Sheet configured by the user.\n2. Get current date using the Date & Time node.\n3. Filter appointments where appointment date matches today and status is Pending or Confirmed.\n4. Send WhatsApp Reminder including recipient name, date, and time.\n\nExample:\nHello [Name], this is a reminder for your appointment scheduled today at [Time]."
+        }
+      },
+      "id": "7e6fef10-2927-4d2f-b7fd-70cbc38ca2db",
+      "name": "Appointment Reminder AI Agent1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1808,
+        992
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": "YOUR_SPREADSHEET_ID_HERE",
+        "sheetName": "YOUR_SHEET_TAB_ID_HERE",
+        "columns": {
+          "value": {
+            "appointment_id": "={{ $('Google Sheets Trigger1').item.json.appointment_id }}",
+            "payment_status": "Refunded"
+          },
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "appointment_id"
+          ]
+        },
+        "options": {}
+      },
+      "id": "08aadc82-5df6-4d10-b2bc-ca87b866cdbe",
+      "name": "Update Refund Status1",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2560,
+        -1984
+      ],
+      "typeVersion": 4.7,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XALMCe1OJMWA9LO5",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.stripe.com/v1/refunds",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_STRIPE_SECRET_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/x-www-form-urlencoded"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "payment_intent",
+              "value": "={{ $('Google Sheets Trigger1').item.json.stripe_payment_intent }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a2926cf2-1c5a-4ea9-a26f-b86be1380199",
+      "name": "Stripe Refund API1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2336,
+        -1888
+      ],
+      "typeVersion": 4.2,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "8b4c82d3-1d5d-43f3-9049-c2eb77d3c89d",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.status.toLowerCase() }}",
+              "rightValue": "cancelled"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fc6fb2e4-2a4e-4695-95c6-55a36b6f274c",
+      "name": "Check status \"Cancelled\"1",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1888,
+        -1792
+      ],
+      "typeVersion": 2.2,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "3ca4b95f-158a-4800-8ca3-84b4ac99e9be",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Google Sheets Trigger1').item.json.stripe_payment_intent }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "478dfe19-e8c5-4e0e-bd86-1fc3b5ca48c7",
+      "name": "Check Is Amount Paid1",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2112,
+        -1792
+      ],
+      "typeVersion": 2.2,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "events": [
+          "payment_intent.succeeded"
+        ]
+      },
+      "id": "d2aaa069-bb8e-4228-aa8a-f5bd175707df",
+      "name": "Stripe Trigger1",
+      "type": "n8n-nodes-base.stripeTrigger",
+      "position": [
+        1680,
+        -1296
+      ],
+      "webhookId": "YOUR_WEBHOOK_ID_HERE",
+      "typeVersion": 1,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "YOUR_WHATSAPP_PHONE_NUMBER_ID",
+        "recipientPhoneNumber": "={{ $json.data[0].metadata.whatsappNo }}",
+        "textBody": "=Your payment has been received for Appointment ID: [{{ $json.data[0].metadata.appointmentId }}]. \n\nThank you for booking your appointment with us! ",
+        "additionalFields": {}
+      },
+      "id": "86ee95a6-d3b4-4fa8-b047-ee0a31a893cd",
+      "name": "Send Payment Confirmation1",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        2128,
+        -1200
+      ],
+      "webhookId": "YOUR_WEBHOOK_ID_HERE",
+      "typeVersion": 1,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "url": "https://api.stripe.com/v1/checkout/sessions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_STRIPE_SECRET_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/x-www-form-urlencoded"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "payment_intent",
+              "value": "={{ $json.data.object.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e6043b23-4985-4eed-9114-fff46456c563",
+      "name": "Retrieve Payment Session1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1904,
+        -1296
+      ],
+      "typeVersion": 4.2,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": "YOUR_SPREADSHEET_ID_HERE",
+        "sheetName": "YOUR_SHEET_TAB_ID_HERE",
+        "columns": {
+          "value": {
+            "status": "Confirmed",
+            "appointment_id": "={{ $json.data[0].metadata.appointmentId }}",
+            "payment_status": "Paid",
+            "stripe_payment_intent": "={{ $json.data[0].payment_intent }}"
+          },
+          "schema": [
+            {
+              "id": "appointment_id",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "appointment_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "patient_id",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "patient_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "whatsapp_number",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "whatsapp_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "date",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "time",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "time",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payment_method",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "payment_method",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payment_status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "payment_status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "stripe_payment_intent",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "stripe_payment_intent",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "number",
+              "display": true,
+              "removed": true,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "appointment_id"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "9d5f8265-60d0-4ee8-9647-f822d9217766",
+      "name": "Mark Payment Paid1",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2128,
+        -1392
+      ],
+      "typeVersion": 4.7,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": "YOUR_SPREADSHEET_ID_HERE",
+        "sheetName": "YOUR_SHEET_TAB_ID_HERE",
+        "event": "rowAdded",
+        "options": {
+          "dateTimeRenderOption": "FORMATTED_STRING"
+        }
+      },
+      "id": "732f9724-784b-4b4d-85a9-7daf8b325063",
+      "name": "Look For New Appointment1",
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "position": [
+        1696,
+        -848
+      ],
+      "typeVersion": 1,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "db474e67-49c7-4af8-be5c-ebc9131d3618",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              },
+              "leftValue": "={{ $json.payment_method }}",
+              "rightValue": "stripe"
+            },
+            {
+              "id": "dc3106e3-8c0a-4878-9dbb-9bb40c6bda26",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              },
+              "leftValue": "={{ $json.payment_method }}",
+              "rightValue": "=Stripe"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5bbd6713-773f-455e-8382-9f6d9024131b",
+      "name": "Check Appointment Payment Mode1",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1920,
+        -848
+      ],
+      "typeVersion": 2.2,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.stripe.com/v1/checkout/sessions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/x-www-form-urlencoded"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_STRIPE_SECRET_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "metadata[appointmentId]",
+              "value": "={{ $('Look For New Appointment1').item.json.appointment_id }}"
+            },
+            {
+              "name": "line_items[0][quantity]",
+              "value": "1"
+            },
+            {
+              "name": "line_items[0][price_data][product_data][name]",
+              "value": "Appointment Booking"
+            },
+            {
+              "name": "line_items[0][price_data][unit_amount]",
+              "value": "5000"
+            },
+            {
+              "name": "line_items[0][price_data][currency]",
+              "value": "usd"
+            },
+            {
+              "name": "mode",
+              "value": "payment"
+            },
+            {
+              "name": "success_url",
+              "value": "https://wa.me/YOUR_NUMBER_HERE"
+            },
+            {
+              "name": "cancel_url",
+              "value": "https://wa.me/YOUR_NUMBER_HERE"
+            },
+            {
+              "name": "metadata[whatsappNo]",
+              "value": "={{ $('Look For New Appointment1').item.json.whatsapp_number }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b9bd429f-1b00-4824-a5be-20ab528a35ed",
+      "name": "Generate Stripe Payment Link1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2144,
+        -848
+      ],
+      "typeVersion": 4.2,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "contextWindowLength": 6
+      },
+      "id": "6c16d74f-cac8-4487-9f8e-71da97407a3e",
+      "name": "Simple Memory1",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        1488,
+        272
+      ],
+      "typeVersion": 1.3
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "id": "bdbba647-2b63-4dae-b741-cc312eb47009",
+      "name": "Get User Appointments1",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "position": [
+        1856,
+        304
+      ],
+      "typeVersion": 4.7
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1JCxpEwd3HvTJ3fV9ijqhBmvnprtWouZuttsTCSEBKIE",
+          "mode": "list",
+          "cachedResultName": "Doctors Appointment (n8n)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JCxpEwd3HvTJ3fV9ijqhBmvnprtWouZuttsTCSEBKIE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "id": "d44af98f-6c08-44cb-a039-6aa4ede3acda",
+      "name": "Add Appointment1",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "position": [
+        1856,
+        112
+      ],
+      "typeVersion": 4.7,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XALMCe1OJMWA9LO5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.messages[0].text.body }}",
+        "options": {
+          "systemMessage": "You are an AI Assistant for a Doctor Clinic.\nYour role is to handle doctor’s appointment bookings via WhatsApp.\nYou must always keep track of the user’s progress with simple memory, and store/retrieve data in Google Sheets.\nPayments are handled via Stripe or Cash on Clinic.\nAlways be polite, WhatsApp-friendly, and guide users step by step.\n\nCore Workflow:\n\nGreeting & Main Menu\n\nWhen a user sends any message for the first time, greet them:\n\"Hello, Welcome to Doctor Clinic!\nPlease choose an option:\n\n1. New Booking\n2. My Upcoming Bookings\n3. Reschedule Booking\n4. Cancel Booking\"\n\nWait for the user’s choice.\n\nNew Booking Flow\n(a) Patient Lookup\n\nget user registered patients\n\nIf patients exist with , show patient list and ask which one to use.\n\nIf no patient exists for given WhatsApp number or user selects \"Add New Patient\":\n\nAsk for Name, Age, Gender.\n\nSave to Patients sheet.\n\nagain fetch the latest patient list for user \n\nShow updated patient list with patient_id ( must be displayed to user ), name, age and gender then ask which one to use ( user can reply with number option also ). \n\n(b) Date Selection\n\nGet the today's date and time from system\n\nGenerate 7 days (today + 6 days).\n\nExclude fully booked days.\n\nAsk user to choose a date.\n\n(c) Time Slot Selection\n\nFor chosen date, use working hours from Config sheet.\n\nDivide into slots of 60 minutes.\n\nExclude already booked slots for chosen date Using All Appointments sheet.\n\nExclude not_available slot using give date and time from config sheet in format YYYY-MM-DD HH:MM to HH:MM means on this date on given time range doctor will not be available.\n\nif todays date is chosen, Get the current time from system &  show only the slots after the current system time ( ex. if current time is 12:05 then give option from 13:00).\n\nShow available slots and ask user to pick one.\n\n(d) Payment Options\n\nAfter time is selected, ask:\n\"How would you like to pay?\n\n1. Online (Stripe)\n2. Cash at Clinic\"\n\n(e) Confirmation Message\n\nAfter taking all the data add the appointment in appointment sheet if user selects online (stripe) then save payment_method \"Stripe\"\n\nand send confirm message with:\n\"Appointment booked!\nPatient: {name}\nDate: {date}\nTime: {time}\nPayment Method: {method}\nPayment Status: Not paid\nStatus: Confirmed\"\n\nMy Upcoming Bookings Flow\n\nGet the current date and time from system\n\nLook up all future user appointments.\nGet all user patients.\n\nshow them as a list with user name , booking date , booking time\n\nReschedule Flow\n\nLook up all future confirmed appointments for the user.\nGet all user patients.\n\nShow them as a list with appointment id, user name, appointment date & time.\n\nAsk which one to reschedule.\n\nGet the today's date and time from system\n\nGenerate 7 days (today + 6 days).\n\nExclude fully booked days.\n\nAsk user to choose a date.\n\nFor chosen date, use working hours from Config sheet.\n\nDivide into slots of 60 minutes.\n\nExclude already booked slots for chosen date Using All Appointments sheet.\n\nExclude not_available slot using give date and time from config sheet in format YYYY-MM-DD HH:MM to HH:MM means on this date on given time range doctor will not be available.\n\nif todays date is chosen, Get the current time from system &  show only the slots after the current system time ( ex. if current time is 12:05 then give option from 13:00).\n\nShow available slots and ask user to pick one.\nafter the current system time ( if current time is 12:05 then give option from 13:00).\n\nShow available slots and ask user to pick one.\n\nafter picking one update the old appointment details with selected date and time \n\nand give a message to user that appointment has been reschedule and give details for new rescheduled appointment with patient details.\n\nCancel Flow\n\nGet the today's date and time from system\n\nLook up all future user appointments.\n\nShow them as a list with appointment id, appointment date & time .\n\nAsk which one to cancel.\n\nthen Cancel the selected appointment Appointment sheet.\n\nSend confirmation:\n\"Your appointment on {date} at {time} has been cancelled.\"\n\nGoogle Sheets Structure:\nPatients: patient_id, whatsapp_number, name, age, gender\nAppointments: appointment_id, patient_id, whatsapp_number, date, time, payment_method, payment_status, status, stripe_payment_intent\nConfig Sheet: key, value ( working_hours=10:00-18:00)\n\nMemory Rules:\n\nAlways remember where the user left off (menu, patient selection, date, time, payment).\n\nIf the user sends something invalid, say:\n\"Sorry, I didn’t understand that. Please reply with one of the given options.\"\n\nIf the user returns later, continue from the last remembered step.\n\nStyle Guide:\n\nsingle patient can register multiple patients and book as many appointments.\n\nKeep messages short, clear, and WhatsApp-friendly.\n\nUse numbers for options ( like reply with  1, 2, 3 ).\n\nAlways confirm before finalizing."
+        }
+      },
+      "id": "a545d80f-ed52-4583-8ef6-6822329427c0",
+      "name": "AI Agent1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1792,
+        -272
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1488,
+        128
+      ],
+      "id": "a9d4a6f3-83a5-48b4-b692-08f81205bb04",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "VbDihkaWBSes22kZ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cobaniflowwhatsapp",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1552,
+        -272
+      ],
+      "id": "b706ae91-87fd-4d92-91b7-0e9532b27b59",
+      "name": "Webhook",
+      "webhookId": "6db63458-8636-4382-a383-41010bf03e99"
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "=CobaniEvoapi",
+        "remoteJid": "=923449687229",
+        "messageText": "={{ $json.output }}\n\nWhatsapp Medical Chatbot",
+        "options_message": {}
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        2160,
+        -272
+      ],
+      "id": "f661cb07-e799-41e1-8c7d-2b6bcaa4904b",
+      "name": "Enviar texto",
+      "credentials": {
+        "evolutionApi": {
+          "id": "I4HuFbKqM2JVH6j1",
+          "name": "Evolution account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "=CobaniEvoapi",
+        "remoteJid": "=923449687229",
+        "messageText": "={{ $json.output }}\n\nWhatsapp Medical Chatbot",
+        "options_message": {}
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        2608,
+        -848
+      ],
+      "id": "dd6d5b01-604c-46d4-835c-3a5582ff9377",
+      "name": "Enviar texto1",
+      "credentials": {
+        "evolutionApi": {
+          "id": "I4HuFbKqM2JVH6j1",
+          "name": "Evolution account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1632,
+        1216
+      ],
+      "id": "375014e0-c589-4be2-8a1f-8cef0fa03d5d",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "VbDihkaWBSes22kZ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "=CobaniEvoapi",
+        "remoteJid": "=923449687229",
+        "messageText": "={{ $json.output }}\n\nWhatsapp Medical Chatbot",
+        "options_message": {}
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        2560,
+        -1568
+      ],
+      "id": "634b3f40-bff7-4c76-abbf-aa8b476398b0",
+      "name": "Enviar texto2",
+      "credentials": {
+        "evolutionApi": {
+          "id": "I4HuFbKqM2JVH6j1",
+          "name": "Evolution account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "=CobaniEvoapi",
+        "remoteJid": "=923449687229",
+        "messageText": "={{ $json.output }}\n\nWhatsapp Medical Chatbot",
+        "options_message": {}
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        2560,
+        -1776
+      ],
+      "id": "94136750-a7fe-4567-a1a0-4d0fc32adc84",
+      "name": "Enviar texto3",
+      "credentials": {
+        "evolutionApi": {
+          "id": "I4HuFbKqM2JVH6j1",
+          "name": "Evolution account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": "YOUR_SPREADSHEET_ID_HERE",
+        "sheetName": "YOUR_SHEET_TAB_ID_HERE",
+        "event": "rowUpdate",
+        "options": {
+          "columnsToWatch": [
+            "status"
+          ]
+        }
+      },
+      "id": "9bc3f936-1756-4626-ac46-5eb06fc26266",
+      "name": "Google Sheets Trigger1",
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "position": [
+        1664,
+        -1792
+      ],
+      "typeVersion": 1,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "=CobaniEvoapi",
+        "remoteJid": "=923449687229",
+        "messageText": "={{ $json.output }}\n\nWhatsapp Medical Chatbot",
+        "options_message": {}
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        2208,
+        992
+      ],
+      "id": "7ab470a3-aa1f-4c39-ac01-e192cdc2b9b3",
+      "name": "Enviar texto4",
+      "credentials": {
+        "evolutionApi": {
+          "id": "I4HuFbKqM2JVH6j1",
+          "name": "Evolution account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.cobaniflow.com",
+            "user-agent": "axios/1.12.2",
+            "content-length": "1607",
+            "accept": "application/json, text/plain, */*",
+            "accept-encoding": "gzip, compress, deflate, br",
+            "content-type": "application/json",
+            "x-forwarded-for": "172.18.0.1",
+            "x-forwarded-host": "n8n.cobaniflow.com",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "e1532c368593",
+            "x-real-ip": "172.18.0.1"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "event": "messages.upsert",
+            "instance": "CobaniEvoapi",
+            "data": {
+              "key": {
+                "remoteJid": "923449687229@s.whatsapp.net",
+                "remoteJidAlt": "40432822169830@lid",
+                "fromMe": false,
+                "id": "AC1FE6A839505F4C62C8F892EF742CEC",
+                "participant": "",
+                "addressingMode": "pn"
+              },
+              "pushName": "Yaseen Ayaz",
+              "status": "DELIVERY_ACK",
+              "message": {
+                "messageContextInfo": {
+                  "deviceListMetadata": {
+                    "senderKeyIndexes": [],
+                    "recipientKeyIndexes": [],
+                    "senderKeyHash": {
+                      "0": 173,
+                      "1": 1,
+                      "2": 157,
+                      "3": 17,
+                      "4": 64,
+                      "5": 146,
+                      "6": 156,
+                      "7": 245,
+                      "8": 54,
+                      "9": 118
+                    },
+                    "senderTimestamp": {
+                      "low": 1761202308,
+                      "high": 0,
+                      "unsigned": true
+                    },
+                    "recipientKeyHash": {
+                      "0": 210,
+                      "1": 31,
+                      "2": 49,
+                      "3": 14,
+                      "4": 104,
+                      "5": 165,
+                      "6": 61,
+                      "7": 236,
+                      "8": 253,
+                      "9": 91
+                    },
+                    "recipientTimestamp": {
+                      "low": 1761203447,
+                      "high": 0,
+                      "unsigned": true
+                    }
+                  },
+                  "deviceListMetadataVersion": 2,
+                  "messageSecret": {
+                    "0": 252,
+                    "1": 10,
+                    "2": 54,
+                    "3": 25,
+                    "4": 71,
+                    "5": 214,
+                    "6": 237,
+                    "7": 212,
+                    "8": 235,
+                    "9": 54,
+                    "10": 97,
+                    "11": 69,
+                    "12": 18,
+                    "13": 36,
+                    "14": 182,
+                    "15": 32,
+                    "16": 22,
+                    "17": 122,
+                    "18": 47,
+                    "19": 85,
+                    "20": 191,
+                    "21": 34,
+                    "22": 248,
+                    "23": 223,
+                    "24": 54,
+                    "25": 218,
+                    "26": 122,
+                    "27": 44,
+                    "28": 10,
+                    "29": 238,
+                    "30": 207,
+                    "31": 97
+                  }
+                },
+                "conversation": "hi"
+              },
+              "contextInfo": {
+                "mentionedJid": [],
+                "groupMentions": [],
+                "expiration": 86400,
+                "ephemeralSettingTimestamp": {
+                  "low": 1728395218,
+                  "high": 0,
+                  "unsigned": false
+                },
+                "disappearingMode": {
+                  "initiator": 1,
+                  "trigger": 0
+                }
+              },
+              "messageType": "conversation",
+              "messageTimestamp": 1761209661,
+              "instanceId": "0b907d2f-8858-428d-86f3-7979295fa159",
+              "source": "android"
+            },
+            "destination": "https://n8n.cobaniflow.com/webhook-test/cobaniflowwhatsapp",
+            "date_time": "2025-10-23T05:54:21.466Z",
+            "sender": "923170919118@s.whatsapp.net",
+            "server_url": "https://evoapi.cobaniflow.com",
+            "apikey": "YOUR_API_KEY"
+          },
+          "webhookUrl": "https://n8n.cobaniflow.com/webhook-test/cobaniflowwhatsapp",
+          "executionMode": "test"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Date & Time": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Patient List For User": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Patient": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All Appointments": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reschedule Appointment": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cancel Appointment": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Appointment Reminder AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Appointment sheet1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Appointment Reminder AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time2": {
+      "ai_tool": [
+        [
+          {
+            "node": "Appointment Reminder AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stripe Refund API1": {
+      "main": [
+        [
+          {
+            "node": "Update Refund Status1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Enviar texto3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check status \"Cancelled\"1": {
+      "main": [
+        [
+          {
+            "node": "Check Is Amount Paid1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Is Amount Paid1": {
+      "main": [
+        [
+          {
+            "node": "Stripe Refund API1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Enviar texto2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stripe Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Retrieve Payment Session1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve Payment Session1": {
+      "main": [
+        [
+          {
+            "node": "Mark Payment Paid1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Payment Confirmation1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Look For New Appointment1": {
+      "main": [
+        [
+          {
+            "node": "Check Appointment Payment Mode1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Appointment Payment Mode1": {
+      "main": [
+        [
+          {
+            "node": "Generate Stripe Payment Link1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Stripe Payment Link1": {
+      "main": [
+        [
+          {
+            "node": "Enviar texto1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get User Appointments1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Appointment1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Enviar texto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Appointment Reminder AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Check status \"Cancelled\"1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Appointment Reminder AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Enviar texto4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "16685575-53c0-4906-8dc3-9555507e9c88",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f2de4c54da3c3963b6c279192ccb9b1ed62de64aefd91dadce962217d2345e05"
+  },
+  "id": "6EbtYs3RYPiOQYSx",
+  "tags": []
+}

@@ -1,0 +1,425 @@
+{
+  "name": "salon_update_appointment",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=The calendar event ID is: {{ $json.id }}\nThe requested new date and time is: {{ $('Webhook').item.json.body.message.toolCalls[0].function.arguments.New_Date_and_Time }}\nThe service is: {{ $('Webhook').item.json.body.message.toolCalls[0].function.arguments.Service }}\nThe customer name is: {{ $('Webhook').item.json.body.message.toolCalls[0].function.arguments.Name }}\nThe phone number is: {{ $('Webhook').item.json.body.message.toolCalls[0].function.arguments.Phone_Number }}\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=# Overview\nYou are an assistant that **updates existing appointments** in Google Calendar.\n\n**Your golden rule:**  \nIf the user asks to move/update an appointment **and** the target time is available (either the time they first asked for or one of the alternative times you proposed), **you MUST call the “Update Calendar Event” tool in the same turn before replying**.\n\nResponsibilities:\n- Convert all times to **ISO 8601**  \n- Process update requests for existing events  \n- **Always** check availability first  \n- Prevent conflicts and double bookings  \n\n---\n\n# Tools\n\n**Calendar Availability Tool**  \n- Check availability across all calendars (primary & secondary)  \n- Verify start & end times (with service duration)\n\n**Update Calendar Event Tool**  \n- **Modify the existing event immediately after availability is confirmed**  \n- Only proceed if no overlaps\n\n---\n\n# Rules\n\n## When to call each tool\n1) **Availability check (always first)**  \n   - Compute end time: `end = start + service duration`  \n   - Validate business hours:  \n     - Monday: Closed  \n     - Tue–Fri: 10:00–19:00  \n     - Sat: 09:00–18:00  \n     - Sun: 10:00–17:00  \n   - Look for conflicts on start, end, and overlaps.\n\n2) **Update (must do in the same turn)**  \n   - If the user **confirms** an available slot or **chooses one of your suggested alternatives**, **call “Update Calendar Event Tool”** before responding.  \n   - Treat any of the following as confirmation/intent to proceed:  \n     “yes”, “okay/ok”, “sounds good”, “let’s do [time]”, “book/update/move/reschedule to [time]”, “I’ll take [time]”, “go with option [n]”, or a direct time selection from your list.  \n   - Re-check availability for the chosen alternative (fast re-verify) and then **update immediately**.\n\n3) **Never defer an update once the user picks a time.**  \n   Do **not** ask for an extra “Are you sure?” after a selection—just re-verify and update.\n\n---\n\n## Handling results\n\n**If the requested time is unavailable:**  \n- Respond: “The requested update time is unavailable. The next 3 closest available times are: [list times in ISO 8601].”  \n- **Store a pending update context**: `event_id`, `service`, `duration`, and the three alternatives.  \n- When the user picks any of those alternatives, **re-check** and then **call the Update tool in the same turn**.\n\n**If the time is available and the user has already asked to move/update:**  \n- **Call the Update tool immediately**, then reply with success.\n\n**If the time is available but the user did not ask to proceed yet (e.g., they just asked “is 2 PM open?”):**  \n- Offer to proceed: “We can move it to 14:00. Would you like me to update it now?”  \n- Upon any affirmative reply, **call the Update tool**.\n\n---\n\n## Update completion (what to write into the event)\n- Reserve the full slot (start → end)  \n- Event title: **`[Service] – [Customer Name] (Stylist: [Stylist Name])`**  \n- Keep phone number in the description\n\n---\n\n# Appointment Durations\n| Service           | Duration |\n|-------------------|---------:|\n| Haircut           | 45 mins  |\n| Wash & Blow Dry   | 30 mins  |\n| Color/Highlights  | 120 mins |\n| Balayage          | 180 mins |\n| Consultation      | 15 mins  |\n\n---\n\n# Variable Handling\n\n**If provided:** `Event_Id` + `New_Date_and_Time`  \n- Use `Event_Id` to locate the appointment (context provided upstream)  \n- Infer service duration from provided `Service` or known data; otherwise use the current event’s duration  \n- Check availability → **if user intends to move, update now**\n\n**If provided:** `Event_Id`, `New_Date_and_Time`, `Service`, `Name`, `Phone_Number`  \n- Identify the event by `Event_Id`  \n- Check availability for the new slot  \n- **If user intends to move, call Update tool immediately** (write service, duration, customer info, phone number)\n\n---\n\n# Memory / State\n- Keep `pending_update` (event_id, proposed slots, duration) after proposing alternatives  \n- If user picks one, **re-verify and update in the same turn**\n\n---\n\n# Output discipline (for your final message & parser)\n- Always include a clear availability label for the parser: **`available`** or **`unavailable`**  \n  - After a successful update, set availability to **`available`**.  \n- Your user-facing message must reflect the real action taken (e.g., “updated successfully” vs. “here are alternatives”).\n\n---\n\n# Self-check BEFORE you reply\n- If `availability == available` **and** the user asked to proceed or selected one of your alternatives, **verify you have already called “Update Calendar Event Tool.”**  \n- If not yet called, **call it now**, then reply with the success message.\n\n---\n\n# Example flows\n\n### A) Requested time unavailable → user picks alternative\n1. Check availability → unavailable  \n2. Offer 3 alternatives (store `pending_update`)  \n3. User: “Let’s do 2025-07-07T14:00”  \n4. Re-check availability for 14:00–(14:00+duration)  \n5. **Call Update Calendar Event Tool**  \n6. Reply: “Your appointment has been updated to 2025-07-07T14:00.”\n\n### B) Requested time available and user already asked to move\n1. Check availability → available  \n2. **Call Update Calendar Event Tool**  \n3. Reply: “Updated successfully to 2025-07-06T12:00.”"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -592,
+        96
+      ],
+      "id": "dabdabcf-426e-4adc-8e77-35d1909448d4",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -768,
+        352
+      ],
+      "id": "7579dd66-69f4-408a-81f6-179beb06d1d8",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "VbDihkaWBSes22kZ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b262d868-d610-49a7-9e06-1485861b2490",
+              "leftValue": "={{ $json.description }}",
+              "rightValue": "={{ $('Webhook').item.json.body.message.toolWithToolCallList[0].toolCall.function.arguments.Phone_Number }}",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "78d6a7bf-8f6d-4a20-af2a-cfc07a84f957",
+              "leftValue": "={{ $json.start.dateTime }}",
+              "rightValue": "={{ $('Webhook').item.json.body.message.toolWithToolCallList[0].toolCall.function.arguments.Date_and_Time }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -816,
+        112
+      ],
+      "id": "2d927fe0-014e-45f0-b872-cdef5f3e9353",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "a737aa4d91cc531da114b7d9b4954a23f3f76fb9648f6a3a64808e73a0331a30@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Salon_Appointments"
+        },
+        "returnAll": true,
+        "timeMax": "={{ $now.plus({ week: 52 }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        -992,
+        112
+      ],
+      "id": "1412d7fa-355b-46e3-95b1-646da31c1983",
+      "name": "Get many events",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "Ey2MhubZG0Wu8cKZ",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "a737aa4d91cc531da114b7d9b4954a23f3f76fb9648f6a3a64808e73a0331a30@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Salon_Appointments"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "updateFields": {
+          "description": "= {{ $('Webhook').item.json.body.message.toolCallList[0].function.arguments.Name }} {{ $('Webhook').item.json.body.message.toolCallList[0].function.arguments.Phone_Number }}",
+          "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+          "start": "={{ $('Webhook').item.json.body.message.toolCalls[0].function.arguments.New_Date_and_Time }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        -576,
+        336
+      ],
+      "id": "0bc5c306-63fb-48a5-9b35-5da2fca760fa",
+      "name": "Update an event in Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "Ey2MhubZG0Wu8cKZ",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "incoming-webhook-up",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1184,
+        112
+      ],
+      "id": "dc063879-bd9b-428c-ac72-0b72a4eedde9",
+      "name": "Webhook",
+      "webhookId": "00000000-0000-4000-8000-000000000000"
+    },
+    {
+      "parameters": {
+        "resource": "calendar",
+        "calendar": {
+          "__rl": true,
+          "value": "a737aa4d91cc531da114b7d9b4954a23f3f76fb9648f6a3a64808e73a0331a30@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Salon_Appointments"
+        },
+        "timeMin": "={{ $fromAI(\"StartTime\", \"The start time the user has requested for the booking\") }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End_Time', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        -416,
+        336
+      ],
+      "id": "e1d0a3e6-bb0c-4c85-8575-c79251df074d",
+      "name": "Get availability in a calendar in Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "Ey2MhubZG0Wu8cKZ",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output.status }}",
+                    "rightValue": "unavailable",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "f4c5894d-f4e7-4e5a-b7ff-d58ae9821603"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "unavailable"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "831597c5-fb38-48bc-87b5-7e58d3e590de",
+                    "leftValue": "={{ $json.output.status }}",
+                    "rightValue": "available",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "available"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -272,
+        96
+      ],
+      "id": "371cdea2-8210-4390-8a73-94d9e9f27e7c",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n    \"results\": [\n        {\n            \"toolCallId\": \"{{ $('Webhook').item.json.body.message.toolCalls[0].id }}\",\n            \"result\": \"That time isn’t available, but we have openings the same day at {{ $json.output.suggested_date_1 }}, {{ $json.output.suggested_date_2 }}, {{ $json.output.suggested_date_3 }}. Do any of those work, or would you prefer another date?\"\n        }\n    ]\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0eae4ad2-c798-421f-a93d-99ee9980535f",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n    \"results\": [\n        {\n            \"toolCallId\": \"{{ $('Webhook').item.json.body.message.toolCalls[0].id }}\",\n            \"result\": \"Your appointment has been updated at the requested time, thanks!\"\n        }\n    ]\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        176
+      ],
+      "id": "57489be3-7643-43ae-bcb9-6b3e4d81b544",
+      "name": "Respond to Webhook2"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "={\n  \"type\": \"object\",\n  \"properties\": {\n    \"status\": { \"type\": \"string\", \"enum\": [\"available\", \"unavailable\"] },\n    \"suggested_date_1\": { \"type\": [\"string\",\"null\"], \"format\": \"date-time\" },\n    \"suggested_date_2\": { \"type\": [\"string\",\"null\"], \"format\": \"date-time\" },\n    \"suggested_date_3\": { \"type\": [\"string\",\"null\"], \"format\": \"date-time\" }\n  },\n  \"required\": [\"status\"],\n  \"additionalProperties\": false\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -224,
+        336
+      ],
+      "id": "4119f71b-c8c7-4420-bdf7-be3fa20161f8",
+      "name": "Structured Output Parser"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many events": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update an event in Google Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get many events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get availability in a calendar in Google Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4d98edc6-a066-44cd-b70b-60a69b9a0fcb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f2de4c54da3c3963b6c279192ccb9b1ed62de64aefd91dadce962217d2345e05"
+  },
+  "id": "eE4f2oIRJEYpNBF5",
+  "tags": []
+}

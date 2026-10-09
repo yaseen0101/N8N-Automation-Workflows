@@ -1,0 +1,496 @@
+{
+  "name": "Chukys-Wearhouse-Automation TEST",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "webhook/whatsapp-inbound",
+        "options": {}
+      },
+      "id": "e12cb7ca-174e-405b-96b2-dfd96df22752",
+      "name": "Webhook Inbound",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -800,
+        208
+      ],
+      "webhookId": "eee2d0cb-f03a-490d-a5b4-fa31c3edae24",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "functionCode": "\n                // Parse incoming WhatsApp message into structured fields\n                const msg = $json[\"body\"] || $json[\"message\"] || \"\";\n                const parts = msg.split(\",\").map(p => p.trim());\n                let data = {};\n                if (parts.length >= 6) {\n                  data.Item = parts[0];\n                  data.Quantity = parseInt(parts[1]) || 0;\n                  data.Date = parts[2];\n                  data.Price = parts[3];\n                  data.Supplier = parts[4];\n                  const last = parts[5].toLowerCase();\n                  if (last === \"arrived\") {\n                    data.Action = \"Arrived\";\n                  } else if ([\"i8\", \"dha\"].includes(last)) {\n                    data.Action = \"Transfer\";\n                    data.Branch = last.toUpperCase();\n                  }\n                }\n                return [{json: data}];\n                "
+      },
+      "id": "69455ce8-dcf6-4bd3-92c8-e36c3e86d3f9",
+      "name": "Parse WhatsApp Message",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        208
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"Action\"]}}",
+              "value2": "Arrived"
+            }
+          ]
+        }
+      },
+      "id": "ca151e76-85b0-49ac-8001-78cc06cf6304",
+      "name": "IF Arrived",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -304,
+        96
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "sheetId": "={{$env.GSHEET_ID}}",
+        "range": "Wearhouse!A:E",
+        "options": {
+          "valueInputMode": "RAW"
+        }
+      },
+      "id": "49e36613-d472-4919-aa6d-cb2b26d8eefd",
+      "name": "Add to Warehouse Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ch-wh-automation",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -608,
+        608
+      ],
+      "id": "6ebf60fa-e416-47f1-90ca-692a6c892e2f",
+      "name": "Webhook",
+      "webhookId": "e40bdf89-94d5-4865-9907-cc2fcfcfdb4c"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all().map(item => {\n  const body = item.json.body; // Access the webhook body\n\n  // Clean and transform the date\n  let formattedDate;\n  if (body.date) {\n    // Remove ordinal suffixes (st, nd, rd, th) from the date string\n    const cleanDate = body.date.replace(/(st|nd|rd|th)/, '');\n    try {\n      const parsedDate = new Date(cleanDate);\n      formattedDate = isNaN(parsedDate) ? new Date().toISOString().split('T')[0] : parsedDate.toISOString().split('T')[0];\n    } catch (error) {\n      formattedDate = new Date().toISOString().split('T')[0];\n    }\n  } else {\n    // Use current date if date is missing\n    formattedDate = new Date().toISOString().split('T')[0];\n  }\n\n  // Clean and transform the rest of the data\n  return {\n    mode: body.mode || 'N/A', // Default to 'N/A' if missing\n    location: body.location || 'N/A',\n    item: body.item || 'N/A',\n    quantity: body.quantity || '0', // Default to '0' if missing\n    price: body.price ? parseFloat(body.price.replace('PKR', '').trim()) : 0, // Remove 'PKR' and convert to number\n    date: formattedDate, // Use the processed date\n    supplier: body.supplier || 'N/A',\n    branch: body.branch || 'Null' // Add branch, default to 'Null' if missing\n  };\n});\n\n// Return the processed items\nreturn items;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        608
+      ],
+      "id": "65fbddde-6c5f-49c4-a1e9-a37d078745f4",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1F4BsOX-VdbNE6wQVWu-6fUTypGvOGCfn0g1WPATm6zM",
+          "mode": "list",
+          "cachedResultName": "SupplyChainData",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1F4BsOX-VdbNE6wQVWu-6fUTypGvOGCfn0g1WPATm6zM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Wh",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1F4BsOX-VdbNE6wQVWu-6fUTypGvOGCfn0g1WPATm6zM/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "mode",
+              "displayName": "mode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "location",
+              "displayName": "location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "item",
+              "displayName": "item",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "quantity",
+              "displayName": "quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "price",
+              "displayName": "price",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "supplier",
+              "displayName": "supplier",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "branch",
+              "displayName": "branch",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        464
+      ],
+      "id": "40caa51b-b3f6-49ef-bbf9-cf6fd0c42a96",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Lv3cjuhVBlOHob6e",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.location }}",
+                    "rightValue": "=Warehouse",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "05783b31-71b0-459d-8d9f-0a69d4768608"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Warehouse"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "075c907e-4333-41e4-ae21-80670b8322be",
+                    "leftValue": "={{ $json.location }}",
+                    "rightValue": "I8 (Branch1)",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "I8 (Branch 1)"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "ca5772d5-9d88-405d-99b3-0e10a4531555",
+                    "leftValue": "={{ $json.location }}",
+                    "rightValue": "DHA (Branch2)",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "DHA (Branch2)"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -160,
+        608
+      ],
+      "id": "999c1f5b-4881-4e95-a7ee-468091af09d4",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1F4BsOX-VdbNE6wQVWu-6fUTypGvOGCfn0g1WPATm6zM",
+          "mode": "list",
+          "cachedResultName": "SupplyChainData",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1F4BsOX-VdbNE6wQVWu-6fUTypGvOGCfn0g1WPATm6zM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1833156383,
+          "mode": "list",
+          "cachedResultName": "I8",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1F4BsOX-VdbNE6wQVWu-6fUTypGvOGCfn0g1WPATm6zM/edit#gid=1833156383"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        624
+      ],
+      "id": "a2b4ca83-d57f-4a12-8dfa-fcbc8758b39f",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Lv3cjuhVBlOHob6e",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1F4BsOX-VdbNE6wQVWu-6fUTypGvOGCfn0g1WPATm6zM",
+          "mode": "list",
+          "cachedResultName": "SupplyChainData",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1F4BsOX-VdbNE6wQVWu-6fUTypGvOGCfn0g1WPATm6zM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1653280411,
+          "mode": "list",
+          "cachedResultName": "DHA",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1F4BsOX-VdbNE6wQVWu-6fUTypGvOGCfn0g1WPATm6zM/edit#gid=1653280411"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        784
+      ],
+      "id": "ce43ddf1-3076-43d7-9b92-f1f4d8a1d83b",
+      "name": "Append row in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Lv3cjuhVBlOHob6e",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook Inbound": {
+      "main": [
+        [
+          {
+            "node": "Parse WhatsApp Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse WhatsApp Message": {
+      "main": [
+        [
+          {
+            "node": "IF Arrived",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Arrived": {
+      "main": [
+        [
+          {
+            "node": "Add to Warehouse Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append row in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "01b7bf0c-fa46-48b8-8982-452cbf838559",
+  "meta": {
+    "instanceId": "539cd56ece7a2f997e08e80a4f924c22976be93f154b9f0f08a285e0f93db7e2"
+  },
+  "id": "Pe4CyEGQwYSln7T8",
+  "tags": []
+}

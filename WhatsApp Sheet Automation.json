@@ -1,0 +1,152 @@
+{
+  "name": "WhatsApp Sheet Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "twilio-whatsapp",
+        "options": {}
+      },
+      "id": "ace50c65-05b2-457d-8c88-f51bb390455c",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        368,
+        -160
+      ],
+      "webhookId": "13bafbb6-1575-4f37-9383-2950d00e6beb"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Try to get the chat text from common keys\nconst input =\n    $json.chatInput;\n\n// If input is empty, throw an error so we know\nif (!input) {\n    throw new Error(\"No chat message found. Check Chat Trigger output keys.\");\n}\n\n// Split into parts and trim spaces\nconst [item, quantity, date, price, supplier] = input.split(\",\").map(s => s.trim());\n\n// Return as object for Google Sheets\nreturn [\n    {\n        json: {\n            Item: item,\n            Quantity: quantity,\n            Date: date,\n            Price: price,\n            Supplier: supplier\n        }\n    }\n];"
+      },
+      "id": "0538040e-f473-41cb-956e-145c645c5f06",
+      "name": "Parse Message",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        944,
+        -208
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        688,
+        -32
+      ],
+      "id": "79bd378f-511a-4e6d-8a65-d66de65c714b",
+      "name": "When chat message received",
+      "webhookId": "ffb5267d-9bc5-444d-9a0e-5a9b7443b9b5"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "append",
+        "sheetId": "1F4BsOX-VdbNE6wQVWu-6fUTypGvOGCfn0g1WPATm6zM",
+        "range": "Sheet1!A:E",
+        "options": {}
+      },
+      "id": "6d376c05-112e-48cd-b7f7-2c56fde2d95d",
+      "name": "Append data to a sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 1,
+      "position": [
+        1248,
+        -208
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "MQJpCTks792stGE0",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        368,
+        -32
+      ],
+      "id": "98711dbe-1625-428a-8b9c-d87215dfa248",
+      "name": "WhatsApp Trigger",
+      "webhookId": "45708bcb-785a-4554-8616-c6c3ceea6a58"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1456,
+        -208
+      ],
+      "id": "aac4254c-9095-4f63-a583-f840cd8eb041",
+      "name": "AI Agent"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "Parse Message": {
+      "main": [
+        [
+          {
+            "node": "Append data to a sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Parse Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append data to a sheet": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "20902493-10ca-403b-8e6d-b0b952db5f86",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cb81fb3e29671da208c51392b9c20b1e03007b00df3b4082b66b18b620d8b00d"
+  },
+  "id": "r6AcY08LiA4BmYit",
+  "tags": []
+}

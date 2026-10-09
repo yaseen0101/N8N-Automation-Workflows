@@ -1,0 +1,3274 @@
+{
+  "name": "Lead Generation",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "For Lead Generation ",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Target Industry",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Location / Region"
+            },
+            {
+              "fieldLabel": "Business Size",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Small (1–10)"
+                  },
+                  {
+                    "option": " Medium (11–50)"
+                  },
+                  {
+                    "option": " Large(51–200)"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -192,
+        -64
+      ],
+      "id": "ed081606-da43-4ef5-ac95-a87f528b1c85",
+      "name": "On form submission",
+      "webhookId": "1c8b8323-474a-400a-a0e0-6ff6a1aba55d"
+    },
+    {
+      "parameters": {
+        "actorId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://console.apify.com/actors/nwua9Gu5YrADL7ZDj/input",
+          "__regex": "https://console.apify.com/actors/([a-zA-Z0-9]+).*"
+        },
+        "customBody": "={\n  \"includeWebResults\": false,\n  \"language\": \"en\",\n  \"locationQuery\": \"{{ $json['Location / Region'] }}\",\n  \"maxCrawledPlacesPerSearch\": 10,\n  \"maxImages\": 0,\n  \"maximumLeadsEnrichmentRecords\": 0,\n  \"scrapeContacts\": true,\n  \"scrapeDirectories\": false,\n  \"scrapeImageAuthors\": false,\n  \"scrapePlaceDetailPage\": true,\n  \"scrapeReviewsPersonalData\": true,\n  \"scrapeTableReservationProvider\": false,\n  \"searchStringsArray\": [\"{{ $json['Target Industry'] }}\"],\n  \"skipClosedPlaces\": true\n}\n"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -64
+      ],
+      "id": "3244a7c5-6476-4fae-9ab0-932a9508a9f5",
+      "name": "Run an Actor",
+      "credentials": {
+        "apifyApi": {
+          "id": "ZzHUF9EwuQOrbMkD",
+          "name": "Apify account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "Datasets",
+        "datasetId": "={{ $json.defaultDatasetId }}",
+        "limit": 10
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        176,
+        -64
+      ],
+      "id": "96606a07-e72b-4b69-9e1d-776777caea40",
+      "name": "Get dataset items",
+      "credentials": {
+        "apifyApi": {
+          "id": "ZzHUF9EwuQOrbMkD",
+          "name": "Apify account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1atqFNFf2s6kDqvg1hZHDV6H7pt61GNRISsNjXb8FZCE",
+          "mode": "list",
+          "cachedResultName": "lead genration",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1atqFNFf2s6kDqvg1hZHDV6H7pt61GNRISsNjXb8FZCE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1atqFNFf2s6kDqvg1hZHDV6H7pt61GNRISsNjXb8FZCE/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "categoryName",
+              "displayName": "categoryName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "address",
+              "displayName": "address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "city",
+              "displayName": "city",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "website",
+              "displayName": "website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "phoneUnformatted",
+              "displayName": "phoneUnformatted",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "emails",
+              "displayName": "emails",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "linkedIns",
+              "displayName": "linkedIns",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "twitters",
+              "displayName": "twitters",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "instagrams",
+              "displayName": "instagrams",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "facebooks",
+              "displayName": "facebooks",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        560,
+        -64
+      ],
+      "id": "b611f0bc-5293-4e92-95c2-9bac413ef9a0",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XALMCe1OJMWA9LO5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e47a756b-c8de-4311-a2ba-d5fad11f48c5",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "86124f04-1f62-4ee5-8878-961ae7f97b80",
+              "name": "categoryName",
+              "value": "={{ $json.categoryName }}",
+              "type": "string"
+            },
+            {
+              "id": "a478ffb4-2f83-4d1a-b6fe-8188216acd5c",
+              "name": "address",
+              "value": "={{ $json.address }}",
+              "type": "string"
+            },
+            {
+              "id": "b0ea0b2d-4b9a-4015-9f67-915a0aa746c6",
+              "name": "city",
+              "value": "={{ $json.city }}",
+              "type": "string"
+            },
+            {
+              "id": "b1442304-89f4-42f1-b872-ca75c9c041de",
+              "name": "website",
+              "value": "={{ $json.website }}",
+              "type": "string"
+            },
+            {
+              "id": "981bde5f-d5e7-49a0-a8f1-2788cc6106db",
+              "name": "phoneUnformatted",
+              "value": "={{ $json.phoneUnformatted }}",
+              "type": "string"
+            },
+            {
+              "id": "bed51bc3-1dbc-4c66-9f06-0ff5e3939592",
+              "name": "emails",
+              "value": "={{ $json.emails }}",
+              "type": "array"
+            },
+            {
+              "id": "a7f7ea65-06d8-4a7f-9997-a33e985b40ec",
+              "name": "linkedIns",
+              "value": "={{ $json.linkedIns }}",
+              "type": "array"
+            },
+            {
+              "id": "387d8212-5709-4873-a7fa-426afd5a0f86",
+              "name": "twitters",
+              "value": "={{ $json.twitters }}",
+              "type": "array"
+            },
+            {
+              "id": "9b78bf75-e941-4232-af83-c9af6021d762",
+              "name": "instagrams",
+              "value": "={{ $json.instagrams }}",
+              "type": "array"
+            },
+            {
+              "id": "7e9987eb-7b1d-4fe4-81cb-da6ee5d25580",
+              "name": "facebooks",
+              "value": "={{ $json.facebooks }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        384,
+        -64
+      ],
+      "id": "cc948461-06b7-4089-a443-d4a0508a067f",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "content": "## Google Map Scraper || Lead Genration",
+        "height": 288,
+        "width": 1200
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -368,
+        -144
+      ],
+      "typeVersion": 1,
+      "id": "37323a52-a370-4846-b450-486631c2bdfb",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {
+    "On form submission": [
+      {
+        "json": {
+          "Target Industry": "Solar Panel",
+          "Location / Region": "Tampa, USA",
+          "Business Size": "Small (1–10)",
+          "submittedAt": "2025-10-28T09:13:33.585-04:00",
+          "formMode": "test"
+        }
+      }
+    ],
+    "Run an Actor": [
+      {
+        "json": {
+          "id": "As1BpBFlfeyAG12lg",
+          "actId": "nwua9Gu5YrADL7ZDj",
+          "userId": "ZLwG5sSzl1K4Eiizh",
+          "startedAt": "2025-10-28T14:52:45.335Z",
+          "finishedAt": "2025-10-28T14:53:08.518Z",
+          "status": "SUCCEEDED",
+          "statusMessage": "Scraping finished. You can view all scraped places laid out on a map on: https://api.apify.com/v2/key-value-stores/ExBHJhC3Gx8C2LdfP/records/results-map?signature=Qg1LegFopHdVF8Msbypa. It can take some time to fully load for large datasets.",
+          "isStatusMessageTerminal": true,
+          "meta": {
+            "origin": "API",
+            "userAgent": "axios/1.12.0"
+          },
+          "stats": {
+            "inputBodyLen": 587,
+            "migrationCount": 0,
+            "rebootCount": 0,
+            "restartCount": 0,
+            "durationMillis": 23018,
+            "resurrectCount": 0,
+            "runTimeSecs": 23.018,
+            "metamorph": 0,
+            "computeUnits": 0.006393888888888889,
+            "memAvgBytes": 130677003.44394144,
+            "memMaxBytes": 149893120,
+            "memCurrentBytes": 0,
+            "cpuAvgUsage": 9.621405174359799,
+            "cpuMaxUsage": 90.96342717258263,
+            "cpuCurrentUsage": 0,
+            "netRxBytes": 1658032,
+            "netTxBytes": 246650
+          },
+          "options": {
+            "build": "0.14.501",
+            "timeoutSecs": 604800,
+            "memoryMbytes": 1024,
+            "maxTotalChargeUsd": 4.344537793980347,
+            "diskMbytes": 2048
+          },
+          "buildId": "5gY5u5jm0drdYbYAr",
+          "exitCode": 0,
+          "defaultKeyValueStoreId": "ExBHJhC3Gx8C2LdfP",
+          "defaultDatasetId": "aUBOlcq4TKvoXKlze",
+          "defaultRequestQueueId": "9HxghsITpaMKTuFMM",
+          "pricingInfo": {
+            "minimalMaxTotalChargeUsd": 0.5,
+            "pricingModel": "PAY_PER_EVENT",
+            "isPriceChangeNotificationSuppressed": true,
+            "createdAt": "2025-10-08T16:03:47.635Z",
+            "startedAt": "2025-10-08T16:03:47.635Z",
+            "apifyMarginPercentage": 0.2,
+            "pricingPerEvent": {
+              "actorChargeEvents": {
+                "actor-start": {
+                  "eventTitle": "Actor start",
+                  "eventDescription": "Flat fee for starting an Actor run. <a href=\"https://help.apify.com/en/articles/10774732-google-maps-scraper-is-going-to-pay-per-event-pricing\">More details</a>",
+                  "eventPriceUsd": 0.007
+                },
+                "place-scraped": {
+                  "eventTitle": "Place scraped",
+                  "eventDescription": "Cost per place successfully scraped from Google Maps. <a href=\"https://help.apify.com/en/articles/10774732-google-maps-scraper-is-going-to-pay-per-event-pricing\">More details</a>",
+                  "eventPriceUsd": 0.004
+                },
+                "filter-applied": {
+                  "eventTitle": "Add-on: Filter applied",
+                  "eventDescription": "Extra cost per place for each filter applied (e.g. category, title match, minimum stars, website availability, or skipping closed places). Final price = places scraped * filter price * number of filters. <a href=\"https://help.apify.com/en/articles/10774732-google-maps-scraper-is-going-to-pay-per-event-pricing\">More details</a>",
+                  "eventPriceUsd": 0.001
+                },
+                "place-details-scraped": {
+                  "eventTitle": "Add-on: Additional place details scraped",
+                  "eventDescription": "Flat cost per place to retrieve additional place details (e.g. table reservation data, web results, or max questions). The price remains the same no matter how many details you select. <a href=\"https://help.apify.com/en/articles/10774732-google-maps-scraper-is-going-to-pay-per-event-pricing\">More details</a>",
+                  "eventPriceUsd": 0.002
+                },
+                "contact-details-scraped": {
+                  "eventTitle": "Add-on: Company contacts enrichment",
+                  "eventDescription": "Extra cost per place for finding the associated web page and extracting contact information (e.g. social media accounts or company email). <a href=\"https://help.apify.com/en/articles/10774732-google-maps-scraper-is-going-to-pay-per-event-pricing\">More details</a>",
+                  "eventPriceUsd": 0.002
+                },
+                "lead-scraped": {
+                  "eventTitle": "Add-on: Business leads enrichment",
+                  "eventDescription": "Cost per successfully extracted business lead. Get key prospect details: full name, work email, phone number, job title, and LinkedIn profile. Enable the 'scrape places with website' filter to only show places that have an active website. <a href=\"https://help.apify.com/en/articles/10774732-google-maps-scraper-is-going-to-pay-per-event-pricing\">More details</a>",
+                  "eventPriceUsd": 0.005
+                },
+                "review-scraped": {
+                  "eventTitle": "Add-on: Review scraped",
+                  "eventDescription": "Extra cost per individual review scraped. <a href=\"https://help.apify.com/en/articles/10774732-google-maps-scraper-is-going-to-pay-per-event-pricing\">More details</a>",
+                  "eventPriceUsd": 0.0005
+                },
+                "image-scraped": {
+                  "eventTitle": "Add-on: Image scraped",
+                  "eventDescription": "Extra cost per image retrieved from a place, including author details. <a href=\"https://help.apify.com/en/articles/10774732-google-maps-scraper-is-going-to-pay-per-event-pricing\">More details</a>",
+                  "eventPriceUsd": 0.0005
+                }
+              }
+            }
+          },
+          "chargedEventCounts": {
+            "actor-start": 1,
+            "place-scraped": 10,
+            "filter-applied": 10,
+            "place-details-scraped": 10,
+            "contact-details-scraped": 10,
+            "lead-scraped": 0,
+            "review-scraped": 0,
+            "image-scraped": 0
+          },
+          "platformUsageBillingModel": "DEVELOPER",
+          "accountedChargedEventCounts": {
+            "actor-start": 1,
+            "place-scraped": 9,
+            "filter-applied": 9,
+            "place-details-scraped": 9,
+            "contact-details-scraped": 9,
+            "lead-scraped": 0,
+            "review-scraped": 0,
+            "image-scraped": 0
+          },
+          "integrationTracking": {
+            "platform": "n8n",
+            "appId": null,
+            "isAiTool": false
+          },
+          "generalAccess": "FOLLOW_USER_SETTING",
+          "buildNumber": "0.14.501",
+          "containerUrl": "https://9bzk6bfnz2mj.runs.apify.net",
+          "usageTotalUsd": 0.08800000000000001,
+          "consoleUrl": "https://console.apify.com/view/runs/As1BpBFlfeyAG12lg"
+        }
+      }
+    ],
+    "Get dataset items": [
+      {
+        "json": {
+          "title": "Transform Solar",
+          "price": null,
+          "categoryName": "Solar energy company",
+          "address": "201 E Selma Ave, Tampa, FL 33603",
+          "neighborhood": "Tampa Heights",
+          "street": "201 E Selma Ave",
+          "city": "Tampa",
+          "postalCode": "33603",
+          "state": "Florida",
+          "countryCode": "US",
+          "website": "http://www.transformsolarfl.com/",
+          "phone": "(813) 565-1443",
+          "phoneUnformatted": "+18135651443",
+          "claimThisBusiness": false,
+          "location": {
+            "lat": 27.9806504,
+            "lng": -82.4591088
+          },
+          "totalScore": 5,
+          "permanentlyClosed": false,
+          "temporarilyClosed": false,
+          "placeId": "ChIJJylYXTu9wogRV6fHRoKCB3I",
+          "categories": [
+            "Solar energy company",
+            "Energy equipment and solutions",
+            "Green energy supplier",
+            "Solar energy system service",
+            "Solar energy equipment supplier",
+            "Solar panel maintenance service"
+          ],
+          "fid": "0x88c2bd3b5d582927:0x7207828246c7a757",
+          "cid": "8216679541205608279",
+          "reviewsCount": 161,
+          "imagesCount": 180,
+          "imageCategories": [
+            "All",
+            "Latest",
+            "By owner",
+            "Street View & 360°"
+          ],
+          "scrapedAt": "2025-10-28T14:52:52.387Z",
+          "googleFoodUrl": null,
+          "hotelAds": [],
+          "openingHours": [
+            {
+              "day": "Monday",
+              "hours": "7 AM to 4 PM"
+            },
+            {
+              "day": "Tuesday",
+              "hours": "7 AM to 4 PM"
+            },
+            {
+              "day": "Wednesday",
+              "hours": "7 AM to 4 PM"
+            },
+            {
+              "day": "Thursday",
+              "hours": "7 AM to 4 PM"
+            },
+            {
+              "day": "Friday",
+              "hours": "7 AM to 4 PM"
+            },
+            {
+              "day": "Saturday",
+              "hours": "Closed"
+            },
+            {
+              "day": "Sunday",
+              "hours": "Closed"
+            }
+          ],
+          "peopleAlsoSearch": [
+            {
+              "category": "People also search for",
+              "title": "Tampa Bay Solar",
+              "reviewsCount": 365,
+              "totalScore": 4.7
+            },
+            {
+              "category": "People also search for",
+              "title": "Florida Electric & Solar",
+              "reviewsCount": 867,
+              "totalScore": 5
+            },
+            {
+              "category": "People also search for",
+              "title": "Florida Power Services \"The Solar Power Company\"",
+              "reviewsCount": 75,
+              "totalScore": 4.6
+            },
+            {
+              "category": "People also search for",
+              "title": "Freedom Solar Power - Tampa Solar Panel Company & Installers",
+              "reviewsCount": 162,
+              "totalScore": 4.6
+            },
+            {
+              "category": "People also search for",
+              "title": "Solar Solutions Inc.",
+              "reviewsCount": 209,
+              "totalScore": 4.5
+            }
+          ],
+          "placesTags": [],
+          "reviewsTags": [
+            {
+              "title": "questions",
+              "count": 23
+            },
+            {
+              "title": "solar panels",
+              "count": 23
+            },
+            {
+              "title": "system",
+              "count": 22
+            },
+            {
+              "title": "project",
+              "count": 15
+            },
+            {
+              "title": "electrician",
+              "count": 12
+            },
+            {
+              "title": "communication",
+              "count": 12
+            },
+            {
+              "title": "roof",
+              "count": 11
+            },
+            {
+              "title": "sales",
+              "count": 9
+            },
+            {
+              "title": "competitive",
+              "count": 6
+            },
+            {
+              "title": "contract",
+              "count": 5
+            }
+          ],
+          "additionalInfo": {
+            "Accessibility": [
+              {
+                "Wheelchair accessible entrance": true
+              },
+              {
+                "Wheelchair accessible parking lot": true
+              }
+            ]
+          },
+          "gasPrices": [],
+          "url": "https://www.google.com/maps/search/?api=1&query=Transform%20Solar&query_place_id=ChIJJylYXTu9wogRV6fHRoKCB3I",
+          "searchPageUrl": "https://www.google.com/maps/search/Solar%20Panel/@27.875370666450614,-82.42018159999999,13z?hl=en",
+          "searchString": "Solar Panel",
+          "language": "en",
+          "rank": 17,
+          "isAdvertisement": false,
+          "imageUrl": "https://lh3.googleusercontent.com/p/AF1QipMNVMq5g52BLwqmiDpLmO8j3HgYsA2kUSl_SFtz=w408-h293-k-no",
+          "kgmid": "/g/11qh2v_q16",
+          "subTitle": null,
+          "description": null,
+          "locatedIn": null,
+          "plusCode": "XGJR+79 Tampa, Florida",
+          "menu": null,
+          "reviewsDistribution": {
+            "oneStar": 1,
+            "twoStar": 0,
+            "threeStar": 0,
+            "fourStar": 3,
+            "fiveStar": 157
+          },
+          "reserveTableUrl": null,
+          "hotelStars": null,
+          "hotelDescription": null,
+          "checkInDate": null,
+          "checkOutDate": null,
+          "similarHotelsNearby": null,
+          "hotelReviewSummary": null,
+          "additionalOpeningHours": null,
+          "openingHoursBusinessConfirmationText": null,
+          "questionsAndAnswers": [],
+          "updatesFromCustomers": null,
+          "userPlaceNote": null,
+          "webResults": [],
+          "tableReservationLinks": [],
+          "bookingLinks": [],
+          "orderBy": [],
+          "restaurantData": {
+            "tableReservationProvider": null
+          },
+          "ownerUpdates": [],
+          "domain": "transformsolarfl.com",
+          "scrapedUrls": [
+            "https://www.transformsolarfl.com/",
+            "https://www.transformsolarfl.com/blog",
+            "https://www.transformsolarfl.com/how-solar-works",
+            "https://www.transformsolarfl.com/ourcompany",
+            "https://www.transformsolarfl.com/"
+          ],
+          "emails": [
+            "info@transformsolarfl.com"
+          ],
+          "phones": [
+            "(813) 565-1443"
+          ],
+          "phonesUncertain": [
+            "8135651443",
+            "28.128893",
+            "82.380741",
+            "100073889168288",
+            "(813) 565-1443",
+            "13008213"
+          ],
+          "linkedIns": [],
+          "twitters": [],
+          "instagrams": [
+            "https://instagram.com/transformsolar"
+          ],
+          "facebooks": [
+            "https://www.facebook.com/profile.php?id=100073889168288"
+          ],
+          "youtubes": [],
+          "tiktoks": [],
+          "pinterests": [],
+          "discords": [],
+          "snapchats": [],
+          "threads": [],
+          "telegrams": [],
+          "reddits": [],
+          "whatsapps": [],
+          "imageUrls": [],
+          "images": null,
+          "reviews": [],
+          "leadsEnrichment": null
+        }
+      },
+      {
+        "json": {
+          "title": "Energy Harbor LLC",
+          "price": null,
+          "categoryName": "Solar energy company",
+          "address": "1600 E 8th Ave A200, Tampa, FL 33605",
+          "neighborhood": "Ybor City",
+          "street": "1600 E 8th Ave A200",
+          "city": "Tampa",
+          "postalCode": "33605",
+          "state": "Florida",
+          "countryCode": "US",
+          "website": "http://www.energyharborfl.com/",
+          "phone": "(813) 212-0100",
+          "phoneUnformatted": "+18132120100",
+          "claimThisBusiness": false,
+          "location": {
+            "lat": 27.960729,
+            "lng": -82.4418833
+          },
+          "totalScore": 4.6,
+          "permanentlyClosed": false,
+          "temporarilyClosed": false,
+          "placeId": "ChIJQxsL1ScCdC8R0H33iS2qlwo",
+          "categories": [
+            "Solar energy company"
+          ],
+          "fid": "0x2f740227d50b1b43:0xa97aa2d89f77dd0",
+          "cid": "763265774427536848",
+          "reviewsCount": 57,
+          "imagesCount": 94,
+          "imageCategories": [
+            "All",
+            "By owner",
+            "Street View & 360°"
+          ],
+          "scrapedAt": "2025-10-28T14:52:53.426Z",
+          "googleFoodUrl": null,
+          "hotelAds": [],
+          "openingHours": [
+            {
+              "day": "Monday",
+              "hours": "9 AM to 5 PM"
+            },
+            {
+              "day": "Tuesday",
+              "hours": "9 AM to 5 PM"
+            },
+            {
+              "day": "Wednesday",
+              "hours": "9 AM to 5 PM"
+            },
+            {
+              "day": "Thursday",
+              "hours": "9 AM to 5 PM"
+            },
+            {
+              "day": "Friday",
+              "hours": "9 AM to 5 PM"
+            },
+            {
+              "day": "Saturday",
+              "hours": "Closed"
+            },
+            {
+              "day": "Sunday",
+              "hours": "Closed"
+            }
+          ],
+          "peopleAlsoSearch": [
+            {
+              "category": "People also search for",
+              "title": "Florida Power Services \"The Solar Power Company\"",
+              "reviewsCount": 75,
+              "totalScore": 4.6
+            },
+            {
+              "category": "People also search for",
+              "title": "Florida Electric & Solar",
+              "reviewsCount": 867,
+              "totalScore": 5
+            },
+            {
+              "category": "People also search for",
+              "title": "Lunex Power",
+              "reviewsCount": 796,
+              "totalScore": 4.8
+            },
+            {
+              "category": "People also search for",
+              "title": "Solar Energy World",
+              "reviewsCount": 149,
+              "totalScore": 4.6
+            },
+            {
+              "category": "People also search for",
+              "title": "Tampa Bay Solar",
+              "reviewsCount": 365,
+              "totalScore": 4.7
+            }
+          ],
+          "placesTags": [],
+          "reviewsTags": [
+            {
+              "title": "system",
+              "count": 13
+            },
+            {
+              "title": "team",
+              "count": 8
+            },
+            {
+              "title": "electric",
+              "count": 6
+            },
+            {
+              "title": "efficient",
+              "count": 6
+            },
+            {
+              "title": "cost",
+              "count": 6
+            },
+            {
+              "title": "solar panels",
+              "count": 5
+            },
+            {
+              "title": "bill",
+              "count": 4
+            },
+            {
+              "title": "presentation",
+              "count": 3
+            },
+            {
+              "title": "loan",
+              "count": 3
+            },
+            {
+              "title": "door",
+              "count": 3
+            }
+          ],
+          "additionalInfo": {
+            "From the business": [
+              {
+                "Identifies as Latino-owned": true
+              },
+              {
+                "Identifies as women-owned": true
+              }
+            ],
+            "Service options": [
+              {
+                "Onsite services": true
+              }
+            ],
+            "Accessibility": [
+              {
+                "Wheelchair accessible entrance": true
+              },
+              {
+                "Wheelchair accessible parking lot": true
+              }
+            ]
+          },
+          "gasPrices": [],
+          "url": "https://www.google.com/maps/search/?api=1&query=Energy%20Harbor%20LLC&query_place_id=ChIJQxsL1ScCdC8R0H33iS2qlwo",
+          "searchPageUrl": "https://www.google.com/maps/search/Solar%20Panel/@27.875370666450614,-82.42018159999999,13z?hl=en",
+          "searchString": "Solar Panel",
+          "language": "en",
+          "rank": 13,
+          "isAdvertisement": false,
+          "imageUrl": "https://lh3.googleusercontent.com/p/AF1QipM8uMLViVm8_6SB_IB4qKyedyco0PxoH_8pRfj7=w408-h408-k-no",
+          "kgmid": "/g/11v0rc2sgq",
+          "subTitle": null,
+          "description": null,
+          "locatedIn": null,
+          "plusCode": "XH65+76 Tampa, Florida",
+          "menu": null,
+          "reviewsDistribution": {
+            "oneStar": 6,
+            "twoStar": 0,
+            "threeStar": 0,
+            "fourStar": 0,
+            "fiveStar": 51
+          },
+          "reserveTableUrl": null,
+          "hotelStars": null,
+          "hotelDescription": null,
+          "checkInDate": null,
+          "checkOutDate": null,
+          "similarHotelsNearby": null,
+          "hotelReviewSummary": null,
+          "additionalOpeningHours": null,
+          "openingHoursBusinessConfirmationText": null,
+          "questionsAndAnswers": [],
+          "updatesFromCustomers": null,
+          "userPlaceNote": null,
+          "webResults": [],
+          "tableReservationLinks": [],
+          "bookingLinks": [],
+          "orderBy": [],
+          "restaurantData": {
+            "tableReservationProvider": null
+          },
+          "ownerUpdates": [],
+          "domain": "energyharborfl.com",
+          "scrapedUrls": [
+            "https://www.energyharborfl.com/",
+            "https://www.energyharborfl.com/training",
+            "https://www.energyharborfl.com/contact-10",
+            "https://www.energyharborfl.com/about-us",
+            "https://www.energyharborfl.com/faq"
+          ],
+          "emails": [
+            "operations@energyharborfl.com"
+          ],
+          "phones": [
+            "(813) 212-0100"
+          ],
+          "phonesUncertain": [
+            "(813) 212 - 0100",
+            "(813) 212-0100"
+          ],
+          "linkedIns": [],
+          "twitters": [],
+          "instagrams": [],
+          "facebooks": [
+            "https://www.facebook.com/profile.php?id=100090143568908"
+          ],
+          "youtubes": [],
+          "tiktoks": [],
+          "pinterests": [],
+          "discords": [],
+          "snapchats": [],
+          "threads": [],
+          "telegrams": [],
+          "reddits": [],
+          "whatsapps": [],
+          "imageUrls": [],
+          "images": null,
+          "reviews": [],
+          "leadsEnrichment": null
+        }
+      },
+      {
+        "json": {
+          "title": "Sunbility",
+          "price": null,
+          "categoryName": "Solar energy company",
+          "address": "610 E Zack St Ste 110-3065, Tampa, FL 33602",
+          "neighborhood": "Downtown",
+          "street": "610 E Zack St Ste 110-3065",
+          "city": "Tampa",
+          "postalCode": "33602",
+          "state": "Florida",
+          "countryCode": "US",
+          "website": "https://sunbility.com/residential-solar/",
+          "phone": "(888) 801-2030",
+          "phoneUnformatted": "+18888012030",
+          "claimThisBusiness": false,
+          "location": {
+            "lat": 27.9513528,
+            "lng": -82.4562353
+          },
+          "totalScore": 4.3,
+          "permanentlyClosed": false,
+          "temporarilyClosed": false,
+          "placeId": "ChIJHZ6x1GHFwogRCab4olnKf4I",
+          "categories": [
+            "Solar energy company",
+            "Environment renewable natural resources",
+            "Roofing contractor",
+            "Solar energy equipment supplier"
+          ],
+          "fid": "0x88c2c561d4b19e1d:0x827fca59a2f8a609",
+          "cid": "9403457033307989513",
+          "reviewsCount": 185,
+          "imagesCount": 125,
+          "imageCategories": [
+            "All",
+            "By owner",
+            "Street View & 360°"
+          ],
+          "scrapedAt": "2025-10-28T14:52:53.464Z",
+          "googleFoodUrl": null,
+          "hotelAds": [],
+          "openingHours": [
+            {
+              "day": "Monday",
+              "hours": "8 AM to 4 PM"
+            },
+            {
+              "day": "Tuesday",
+              "hours": "8 AM to 4 PM"
+            },
+            {
+              "day": "Wednesday",
+              "hours": "8 AM to 4 PM"
+            },
+            {
+              "day": "Thursday",
+              "hours": "8 AM to 4 PM"
+            },
+            {
+              "day": "Friday",
+              "hours": "8 AM to 4 PM"
+            },
+            {
+              "day": "Saturday",
+              "hours": "Closed"
+            },
+            {
+              "day": "Sunday",
+              "hours": "Closed"
+            }
+          ],
+          "peopleAlsoSearch": [
+            {
+              "category": "People also search for",
+              "title": "Florida Electric & Solar",
+              "reviewsCount": 867,
+              "totalScore": 5
+            },
+            {
+              "category": "People also search for",
+              "title": "Powersol USA",
+              "reviewsCount": 39,
+              "totalScore": 5
+            },
+            {
+              "category": "People also search for",
+              "title": "Solar Solutions Inc.",
+              "reviewsCount": 209,
+              "totalScore": 4.5
+            },
+            {
+              "category": "People also search for",
+              "title": "Sunrun Solar",
+              "reviewsCount": 638,
+              "totalScore": 4.1
+            },
+            {
+              "category": "People also search for",
+              "title": "Tampa Bay Solar",
+              "reviewsCount": 365,
+              "totalScore": 4.7
+            }
+          ],
+          "placesTags": [],
+          "reviewsTags": [
+            {
+              "title": "information",
+              "count": 37
+            },
+            {
+              "title": "questions",
+              "count": 37
+            },
+            {
+              "title": "solar panels",
+              "count": 15
+            },
+            {
+              "title": "understand",
+              "count": 13
+            },
+            {
+              "title": "pressure",
+              "count": 10
+            },
+            {
+              "title": "financial",
+              "count": 9
+            },
+            {
+              "title": "honest",
+              "count": 9
+            },
+            {
+              "title": "warranty",
+              "count": 6
+            },
+            {
+              "title": "contract",
+              "count": 6
+            },
+            {
+              "title": "presentation",
+              "count": 5
+            }
+          ],
+          "additionalInfo": {
+            "From the business": [
+              {
+                "Identifies as women-owned": true
+              }
+            ],
+            "Service options": [
+              {
+                "Onsite services": true
+              }
+            ],
+            "Accessibility": [
+              {
+                "Wheelchair accessible entrance": true
+              },
+              {
+                "Wheelchair accessible parking lot": true
+              }
+            ]
+          },
+          "gasPrices": [],
+          "url": "https://www.google.com/maps/search/?api=1&query=Sunbility&query_place_id=ChIJHZ6x1GHFwogRCab4olnKf4I",
+          "searchPageUrl": "https://www.google.com/maps/search/Solar%20Panel/@27.875370666450614,-82.42018159999999,13z?hl=en",
+          "searchString": "Solar Panel",
+          "language": "en",
+          "rank": 14,
+          "isAdvertisement": false,
+          "imageUrl": "https://lh3.googleusercontent.com/p/AF1QipMdk7A5R_f-5tv4Nwr-jTZDpYM14EbEYLkRGo4U=w426-h240-k-no",
+          "kgmid": "/g/11fd4lch9h",
+          "subTitle": null,
+          "description": null,
+          "locatedIn": null,
+          "plusCode": "XG2V+GG Tampa, Florida",
+          "menu": null,
+          "reviewsDistribution": {
+            "oneStar": 28,
+            "twoStar": 3,
+            "threeStar": 2,
+            "fourStar": 4,
+            "fiveStar": 148
+          },
+          "reserveTableUrl": null,
+          "hotelStars": null,
+          "hotelDescription": null,
+          "checkInDate": null,
+          "checkOutDate": null,
+          "similarHotelsNearby": null,
+          "hotelReviewSummary": null,
+          "additionalOpeningHours": null,
+          "openingHoursBusinessConfirmationText": null,
+          "questionsAndAnswers": [],
+          "updatesFromCustomers": {
+            "text": "Execellent work performed in my roof today my Matt and Derik.",
+            "language": "en",
+            "postDate": "5 years ago",
+            "postedBy": {
+              "name": "Javier Maldonado",
+              "url": "https://www.google.com/maps/contrib/107523329414152465232?hl=en-US",
+              "title": null,
+              "totalReviews": 4
+            },
+            "media": [
+              {
+                "link": "https://lh3.googleusercontent.com/geougc-cs/AMBA38uGKOSsMAw4JS5I1T84D7vRsrls2q1-nxnjYCAmpMdxyioWrFTXmsNky1Swj4A9IMszaN1wX3zBeB8W2aMfpFJlqQQy25PvIItc_oBKMkvTG08Vvt24qSSt9CnNeFmz949qUx4V",
+                "postDate": "5 years ago"
+              },
+              {
+                "link": "https://lh3.googleusercontent.com/geougc-cs/AMBA38vx7cTaK9E3wQJExT1nBWgo1PM3CH11IV7bjl4_4BZMYKexPuKVDDBQUAZHcC9oth1HNacwry-Oe6zgiXxXwp_82JqQcAF9BCQitx7Ji80KX4lrtwUBLOrHJuBA-O5c8IRHlUP_oQ",
+                "postDate": "5 years ago"
+              },
+              {
+                "link": "https://lh3.googleusercontent.com/geougc-cs/AMBA38ulTtvdDvmoKfGlDaK5QehPI1pIBMGYpQ6rw3LoTecZnjs_1XBpq-Gc0zavzcU6yYov91oWMHgyd3l_dY73i9MfWX7594ki8o9ZU8BzW-vONheIhv65NhM0S4hqQ7Ikq3_YcY38",
+                "postDate": "5 years ago"
+              },
+              {
+                "link": "https://lh3.googleusercontent.com/geougc-cs/AMBA38vPHR2ntS9dUgHmmYnEiMDzPZTwB2xbft_L9V-D7V5R0YyfL-NzWFk0u1sYKuH7gc5Z0w74TmK5ybAfq5a5SVC5xUY9e3cvEuhhay9wlVSrOxRgujfES8hJLCtr5IPZCY0AhPuO",
+                "postDate": "5 years ago"
+              }
+            ]
+          },
+          "userPlaceNote": null,
+          "webResults": [],
+          "tableReservationLinks": [],
+          "bookingLinks": [
+            {
+              "name": "sunbility.com",
+              "url": "https://sunbility.com/"
+            }
+          ],
+          "orderBy": [],
+          "restaurantData": {
+            "tableReservationProvider": null
+          },
+          "ownerUpdates": [],
+          "domain": "sunbility.com",
+          "emails": [],
+          "phones": [
+            "8888012030",
+            "888-801-2030"
+          ],
+          "phonesUncertain": [
+            "(888) 801-2030",
+            "13008424",
+            "1332142",
+            "888-801-2030"
+          ],
+          "linkedIns": [],
+          "twitters": [],
+          "instagrams": [
+            "https://www.instagram.com/sunbilitysolar"
+          ],
+          "facebooks": [
+            "https://www.facebook.com/Sunbility"
+          ],
+          "youtubes": [],
+          "tiktoks": [],
+          "pinterests": [],
+          "discords": [],
+          "snapchats": [],
+          "threads": [],
+          "telegrams": [],
+          "reddits": [],
+          "whatsapps": [],
+          "imageUrls": [],
+          "images": null,
+          "reviews": [],
+          "leadsEnrichment": []
+        }
+      },
+      {
+        "json": {
+          "title": "Total Care Installs",
+          "price": null,
+          "categoryName": "Solar energy equipment supplier",
+          "address": "610 E Zack St, Tampa, FL 33602",
+          "neighborhood": "Downtown",
+          "street": "610 E Zack St",
+          "city": "Tampa",
+          "postalCode": "33602",
+          "state": "Florida",
+          "countryCode": "US",
+          "website": "https://tcisolarhome.com/",
+          "phone": "(727) 365-0945",
+          "phoneUnformatted": "+17273650945",
+          "claimThisBusiness": false,
+          "location": {
+            "lat": 27.9513522,
+            "lng": -82.456248
+          },
+          "totalScore": 5,
+          "permanentlyClosed": false,
+          "temporarilyClosed": false,
+          "placeId": "ChIJt3ENOFr7wogRITYqZq1KlZ0",
+          "categories": [
+            "Solar energy equipment supplier",
+            "Roofing contractor",
+            "Solar energy company",
+            "Solar energy system service",
+            "Solar panel maintenance service"
+          ],
+          "fid": "0x88c2fb5a380d71b7:0x9d954aad662a3621",
+          "cid": "11355064144088413729",
+          "reviewsCount": 32,
+          "imagesCount": 74,
+          "imageCategories": [
+            "All",
+            "By owner",
+            "Street View & 360°"
+          ],
+          "scrapedAt": "2025-10-28T14:52:54.705Z",
+          "googleFoodUrl": null,
+          "hotelAds": [],
+          "openingHours": [
+            {
+              "day": "Monday",
+              "hours": "8 AM to 8 PM"
+            },
+            {
+              "day": "Tuesday",
+              "hours": "8 AM to 9 PM"
+            },
+            {
+              "day": "Wednesday",
+              "hours": "8 AM to 9 PM"
+            },
+            {
+              "day": "Thursday",
+              "hours": "8 AM to 9 PM"
+            },
+            {
+              "day": "Friday",
+              "hours": "8 AM to 9 PM"
+            },
+            {
+              "day": "Saturday",
+              "hours": "8 AM to 9 PM"
+            },
+            {
+              "day": "Sunday",
+              "hours": "8 AM to 8 PM"
+            }
+          ],
+          "peopleAlsoSearch": [
+            {
+              "category": "People also search for",
+              "title": "Energy Harbor LLC",
+              "reviewsCount": 57,
+              "totalScore": 4.6
+            },
+            {
+              "category": "People also search for",
+              "title": "MC Solar",
+              "reviewsCount": 290,
+              "totalScore": 2.5
+            },
+            {
+              "category": "People also search for",
+              "title": "ProSolar - Tampa",
+              "reviewsCount": 2,
+              "totalScore": 3
+            }
+          ],
+          "placesTags": [],
+          "reviewsTags": [
+            {
+              "title": "company",
+              "count": 12
+            },
+            {
+              "title": "saving",
+              "count": 8
+            },
+            {
+              "title": "bill",
+              "count": 8
+            },
+            {
+              "title": "money",
+              "count": 5
+            },
+            {
+              "title": "sales",
+              "count": 5
+            },
+            {
+              "title": "cost",
+              "count": 5
+            },
+            {
+              "title": "crew",
+              "count": 4
+            },
+            {
+              "title": "happy",
+              "count": 4
+            },
+            {
+              "title": "skeptical",
+              "count": 2
+            },
+            {
+              "title": "options",
+              "count": 2
+            }
+          ],
+          "additionalInfo": {
+            "From the business": [
+              {
+                "Identifies as Latino-owned": true
+              },
+              {
+                "Identifies as veteran-owned": true
+              }
+            ],
+            "Service options": [
+              {
+                "Onsite services": true
+              }
+            ],
+            "Accessibility": [
+              {
+                "Wheelchair accessible parking lot": true
+              },
+              {
+                "Wheelchair accessible restroom": true
+              }
+            ],
+            "Parking": [
+              {
+                "Free parking garage": true
+              },
+              {
+                "Free parking lot": true
+              },
+              {
+                "Free street parking": true
+              },
+              {
+                "On-site parking": true
+              },
+              {
+                "Paid parking garage": true
+              },
+              {
+                "Paid parking lot": true
+              },
+              {
+                "Paid street parking": true
+              }
+            ]
+          },
+          "gasPrices": [],
+          "url": "https://www.google.com/maps/search/?api=1&query=Total%20Care%20Installs&query_place_id=ChIJt3ENOFr7wogRITYqZq1KlZ0",
+          "searchPageUrl": "https://www.google.com/maps/search/Solar%20Panel/@27.875370666450614,-82.42018159999999,13z?hl=en",
+          "searchString": "Solar Panel",
+          "language": "en",
+          "rank": 12,
+          "isAdvertisement": false,
+          "imageUrl": "https://lh3.googleusercontent.com/p/AF1QipONSQqBjDsWS2p5X7EupaPrxJldtXa69xEuyP8C=w426-h240-k-no",
+          "kgmid": "/g/11jzsv0x6l",
+          "subTitle": null,
+          "description": null,
+          "locatedIn": null,
+          "plusCode": "XG2V+GG Tampa, Florida",
+          "menu": null,
+          "reviewsDistribution": {
+            "oneStar": 0,
+            "twoStar": 0,
+            "threeStar": 0,
+            "fourStar": 0,
+            "fiveStar": 32
+          },
+          "reserveTableUrl": null,
+          "hotelStars": null,
+          "hotelDescription": null,
+          "checkInDate": null,
+          "checkOutDate": null,
+          "similarHotelsNearby": null,
+          "hotelReviewSummary": null,
+          "additionalOpeningHours": null,
+          "openingHoursBusinessConfirmationText": "Updated by this business 8 weeks ago",
+          "questionsAndAnswers": [
+            {
+              "question": "Does a new roof increase home value?",
+              "answers": [
+                {
+                  "answer": "Yes—buyers prefer homes with new roofs and it can increase resale value significantly.",
+                  "answeredBy": {}
+                }
+              ],
+              "askDate": "4 months ago",
+              "askedBy": {}
+            }
+          ],
+          "updatesFromCustomers": null,
+          "userPlaceNote": null,
+          "webResults": [],
+          "tableReservationLinks": [],
+          "bookingLinks": [
+            {
+              "name": "tcisolarhome.com",
+              "url": "https://tcisolarhome.com/free-evaluation-calendar/"
+            }
+          ],
+          "orderBy": [],
+          "restaurantData": {
+            "tableReservationProvider": null
+          },
+          "ownerUpdates": [
+            {
+              "text": "Ready to embrace savings on your energy bills? Opting for solar ownership allows you to benefit from tax credits and increased home value. With the sunny weather here in Tampa, it's the perfect time to make the switch! Our expert team at Total Care Installs is here to guide you through the installation process. Transform your energy future and join the solar movement today!",
+              "buttonText": "Learn more",
+              "buttonLink": "https://tcisolarhome.com/",
+              "date": "2025-09-26T00:10:10.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipO4fVTWgT4jaP9SWncGsRq7ePxJoPXcZOi9Yowg=h400-no"
+            },
+            {
+              "text": "Considering solar installation? Here's a quick tip: evaluate your roof's orientation and shading to maximize efficiency! A well-placed solar system can significantly lower your energy bills. At Total Care Installs, we're proud to serve the Tampa area with tailored solar solutions, whether through ownership or leasing options. Let's make your home more energy-efficient together! Visit us at 610 E. Zack St. for a consultation.",
+              "buttonText": "Learn more",
+              "buttonLink": "https://tcisolarhome.com/",
+              "date": "2025-09-22T00:11:03.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipOkqWXcfYMAjUCDFBerxdI0LalLkvxYBaq3fyyf=h400-no"
+            },
+            {
+              "text": "Are rising energy costs giving you a headache? Solar installation is the answer! At Total Care Installs, we specialize in customized solar solutions that can help reduce your bills while increasing your home's value. Whether you choose solar ownership or leasing, our local experts will guide you through the entire process. Join your neighbors in Tampa who are already enjoying the benefits of renewable energy. Let’s make your home more energy-efficient today!",
+              "buttonText": "Learn more",
+              "buttonLink": "https://tcisolarhome.com/",
+              "date": "2025-09-20T00:49:07.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipNPfCl0_fnxyiwLN2YtAxr4QtWDTFmsjewObVFz=h400-no"
+            },
+            {
+              "text": "Did you know that going solar can significantly lower your energy bills? At Total Care Installs, we provide expert solar installation services tailored to your needs in the heart of Tampa. Whether you're considering solar ownership or leasing options, our team ensures a smooth transition to renewable energy. Make the switch today and join your neighbors in enjoying a sustainable future powered by clean energy! 🌞",
+              "buttonText": "Learn more",
+              "buttonLink": "https://tcisolarhome.com/",
+              "date": "2025-09-19T00:12:23.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipMpYeogcWv9FOguzsL0wunIdVnYjvrrTqps961-=h400-no"
+            },
+            {
+              "text": "Did you know that solar ownership can significantly lower your energy bills? At Total Care Installs, we're passionate about helping Tampa residents take control of their energy costs. Whether you're interested in solar leasing or outright ownership, our expert team provides tailored solutions to fit your needs. Join the green energy movement today and enjoy the benefits of renewable energy right from your rooftop!",
+              "buttonText": "Learn more",
+              "buttonLink": "https://tcisolarhome.com/",
+              "date": "2025-09-15T00:09:12.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipMC39DBQSYiaA2A_mTChdZVXTg3NavDk2zlfUoF=h400-no"
+            },
+            {
+              "text": "Sunshine in Tampa isn’t just for sunbathing—it’s a powerful energy source! 🌞 Are you considering solar installation? Our expert team at Total Care Installs makes it easy to switch to solar ownership or explore leasing options. Enjoy significant savings on your energy bills while helping the environment. Let us guide you through the process—tailored for your needs in neighborhoods like Ybor City and Davis Islands. Go green today!",
+              "buttonText": "Learn more",
+              "buttonLink": "https://tcisolarhome.com/",
+              "date": "2025-09-11T03:19:04.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipPU8dku77JH_4LIsqYNWeF4sQrU2wfj7l6c6Djn=h400-no"
+            },
+            {
+              "text": "As the cooler weather approaches, now is the perfect time to consider solar installation! Not only will it help you save on energy bills, but it also adds value to your home in Tampa. Whether you're looking for solar ownership or leasing options, our team at Total Care Installs is ready to guide you through the process. Embrace sustainability and energy efficiency this season—get started today!",
+              "buttonText": "Learn more",
+              "buttonLink": "https://tcisolarhome.com/",
+              "date": "2025-09-02T00:08:29.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipMEGatB50E1lyR2ISO3vNwG0CZP1A4rviEZS7rl=h400-no"
+            },
+            {
+              "text": "Did you know that owning your solar system can save you more money in the long run? With Total Care Installs, you can harness the power of the sun right here in Tampa! By investing in solar ownership, you not only reduce your energy bills but also increase your property value. Plus, our local experts guide you through the installation process seamlessly. Take advantage of Florida’s abundant sunshine and make a smart investment in your future today!",
+              "buttonText": "Learn more",
+              "buttonLink": "https://tcisolarhome.com/",
+              "date": "2025-09-01T01:47:38.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipMJiEco38vZBpE4wQzjbvN1qVAhzoFDXhZt5WJ5=h400-no"
+            },
+            {
+              "text": "As the seasons change, it's the perfect time to consider energy savings through solar installation with Total Care Installs! Whether you're exploring solar ownership or solar leasing, our Tampa team is here to guide you. Enjoy the benefits of clean energy while reducing your utility bills. Serving Lutz, Largo, and beyond, we tailor solutions to fit your needs. Contact us today to start your solar journey!",
+              "buttonText": "Learn more",
+              "buttonLink": "http://tcisolarhome.com/",
+              "date": "2025-08-26T01:52:40.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipM6KN4klzT-ej0UayeUq_x8mPLEOQCZmHKTGjDt=h400-no"
+            },
+            {
+              "text": "Thinking about solar? Consider full solar ownership for long-term savings! Total Care Installs specializes in solar installation and leasing options tailored to your needs. We proudly serve Tampa and surrounding areas like Lutz and Brandon. Enjoy energy efficiency and lower electricity bills while contributing to a greener environment. Let us help you make the switch today!",
+              "buttonText": "Learn more",
+              "buttonLink": "http://tcisolarhome.com/",
+              "date": "2025-08-21T01:17:42.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipN6AI4PGTOwHJxgL2lnIx4dvEYT9ILk_MnkF7xC=h400-no"
+            }
+          ],
+          "domain": "tcisolarhome.com",
+          "emails": [
+            "martinaguilarv@tcisolarhome.com",
+            "Support@eclipsesolarhome.com",
+            "tci@tcisolarhome.com"
+          ],
+          "phones": [
+            "17273650945"
+          ],
+          "phonesUncertain": [
+            "100090415189588",
+            "110-4049",
+            "17273650945",
+            "813-438-3886",
+            "1 (727) 365-0945",
+            "(727) 513-2432"
+          ],
+          "linkedIns": [],
+          "twitters": [],
+          "instagrams": [
+            "https://instagram.com/eclipsesolarhome",
+            "https://www.instagram.com/tcisolarhome"
+          ],
+          "facebooks": [
+            "https://www.facebook.com/profile.php?id=100090415189588",
+            "facebook.com/100088601372242"
+          ],
+          "youtubes": [
+            "https://www.youtube.com/shorts",
+            "https://www.youtube.com/@martinaguilar7923"
+          ],
+          "tiktoks": [],
+          "pinterests": [],
+          "discords": [],
+          "snapchats": [],
+          "threads": [],
+          "telegrams": [],
+          "reddits": [],
+          "whatsapps": [],
+          "imageUrls": [],
+          "images": null,
+          "reviews": [],
+          "leadsEnrichment": []
+        }
+      },
+      {
+        "json": {
+          "title": "Ecuip Engineering",
+          "price": null,
+          "categoryName": "Engineer",
+          "address": "1646 W Snow Ave #9, Tampa, FL 33606",
+          "neighborhood": "South Tampa",
+          "street": "1646 W Snow Ave #9",
+          "city": "Tampa",
+          "postalCode": "33606",
+          "state": "Florida",
+          "countryCode": "US",
+          "website": "https://ecuip.com/",
+          "phone": "(813) 438-3035",
+          "phoneUnformatted": "+18134383035",
+          "claimThisBusiness": false,
+          "location": {
+            "lat": 27.9351636,
+            "lng": -82.4766347
+          },
+          "totalScore": 5,
+          "permanentlyClosed": false,
+          "temporarilyClosed": false,
+          "placeId": "ChIJ-3mir-DDwogRnYNwGDmbeDE",
+          "categories": [
+            "Engineer",
+            "Design engineer",
+            "Electrical engineer",
+            "Software company",
+            "Solar energy company"
+          ],
+          "fid": "0x88c2c3e0afa279fb:0x31789b391870839d",
+          "cid": "3564769774589215645",
+          "reviewsCount": 42,
+          "imagesCount": 12,
+          "imageCategories": [
+            "All",
+            "By owner",
+            "Videos",
+            "Street View & 360°"
+          ],
+          "scrapedAt": "2025-10-28T14:52:56.133Z",
+          "googleFoodUrl": null,
+          "hotelAds": [],
+          "openingHours": [
+            {
+              "day": "Monday",
+              "hours": "9 AM to 5 PM"
+            },
+            {
+              "day": "Tuesday",
+              "hours": "9 AM to 5 PM"
+            },
+            {
+              "day": "Wednesday",
+              "hours": "9 AM to 5 PM"
+            },
+            {
+              "day": "Thursday",
+              "hours": "9 AM to 5 PM"
+            },
+            {
+              "day": "Friday",
+              "hours": "9 AM to 5 PM"
+            },
+            {
+              "day": "Saturday",
+              "hours": "Closed"
+            },
+            {
+              "day": "Sunday",
+              "hours": "Closed"
+            }
+          ],
+          "peopleAlsoSearch": [
+            {
+              "category": "People also search for",
+              "title": "Ecuip Energy",
+              "reviewsCount": 6,
+              "totalScore": 5
+            },
+            {
+              "category": "People also search for",
+              "title": "Advanced Power Quality, Inc.",
+              "reviewsCount": 2,
+              "totalScore": 5
+            },
+            {
+              "category": "People also search for",
+              "title": "Ecopro - Tampa",
+              "reviewsCount": 16,
+              "totalScore": 5
+            },
+            {
+              "category": "People also search for",
+              "title": "Eco Energy Experts",
+              "reviewsCount": 1,
+              "totalScore": 5
+            },
+            {
+              "category": "People also search for",
+              "title": "Campo Engineering Inc",
+              "reviewsCount": 1,
+              "totalScore": 5
+            }
+          ],
+          "placesTags": [],
+          "reviewsTags": [
+            {
+              "title": "solar",
+              "count": 15
+            },
+            {
+              "title": "permit",
+              "count": 9
+            },
+            {
+              "title": "questions",
+              "count": 8
+            },
+            {
+              "title": "DIY",
+              "count": 7
+            },
+            {
+              "title": "plans",
+              "count": 7
+            },
+            {
+              "title": "team",
+              "count": 7
+            },
+            {
+              "title": "project",
+              "count": 5
+            },
+            {
+              "title": "price",
+              "count": 5
+            },
+            {
+              "title": "code",
+              "count": 4
+            },
+            {
+              "title": "county",
+              "count": 3
+            }
+          ],
+          "additionalInfo": {
+            "Accessibility": [
+              {
+                "Wheelchair accessible entrance": true
+              },
+              {
+                "Wheelchair accessible parking lot": true
+              }
+            ]
+          },
+          "gasPrices": [],
+          "url": "https://www.google.com/maps/search/?api=1&query=Ecuip%20Engineering&query_place_id=ChIJ-3mir-DDwogRnYNwGDmbeDE",
+          "searchPageUrl": "https://www.google.com/maps/search/Solar%20Panel/@27.875370666450614,-82.42018159999999,13z?hl=en",
+          "searchString": "Solar Panel",
+          "language": "en",
+          "rank": 10,
+          "isAdvertisement": false,
+          "imageUrl": "https://lh3.googleusercontent.com/p/AF1QipM8E2gOsoOYsGxHQMaO_9aL17oHn-HtgewJni9w=w427-h240-k-no",
+          "kgmid": "/g/11hzflmlq4",
+          "subTitle": null,
+          "description": null,
+          "locatedIn": "Hyde Park Village",
+          "plusCode": "WGPF+38 Tampa, Florida",
+          "menu": null,
+          "reviewsDistribution": {
+            "oneStar": 0,
+            "twoStar": 0,
+            "threeStar": 0,
+            "fourStar": 0,
+            "fiveStar": 42
+          },
+          "reserveTableUrl": null,
+          "hotelStars": null,
+          "hotelDescription": null,
+          "checkInDate": null,
+          "checkOutDate": null,
+          "similarHotelsNearby": null,
+          "hotelReviewSummary": null,
+          "additionalOpeningHours": null,
+          "openingHoursBusinessConfirmationText": null,
+          "questionsAndAnswers": [],
+          "updatesFromCustomers": null,
+          "userPlaceNote": null,
+          "webResults": [],
+          "tableReservationLinks": [],
+          "bookingLinks": [],
+          "orderBy": [],
+          "restaurantData": {
+            "tableReservationProvider": null
+          },
+          "ownerUpdates": [],
+          "emails": [],
+          "phones": [],
+          "phonesUncertain": [],
+          "linkedIns": [],
+          "twitters": [],
+          "instagrams": [],
+          "facebooks": [],
+          "youtubes": [],
+          "tiktoks": [],
+          "pinterests": [],
+          "discords": [],
+          "imageUrls": [],
+          "images": null,
+          "reviews": [],
+          "leadsEnrichment": null
+        }
+      },
+      {
+        "json": {
+          "title": "Tampa Bay Solar",
+          "price": null,
+          "categoryName": "Solar energy company",
+          "address": "6002 E Adamo Dr, Tampa, FL 33619",
+          "neighborhood": null,
+          "street": "6002 E Adamo Dr",
+          "city": "Tampa",
+          "postalCode": "33619",
+          "state": "Florida",
+          "countryCode": "US",
+          "website": "http://www.tampabaysolar.com/",
+          "phone": "(813) 827-6527",
+          "phoneUnformatted": "+18138276527",
+          "claimThisBusiness": false,
+          "location": {
+            "lat": 27.952707,
+            "lng": -82.3878383
+          },
+          "totalScore": 4.7,
+          "permanentlyClosed": false,
+          "temporarilyClosed": false,
+          "placeId": "ChIJxTquJLbEwogRVxNkfbbdFRI",
+          "categories": [
+            "Solar energy company",
+            "Solar energy system service"
+          ],
+          "fid": "0x88c2c4b624ae3ac5:0x1215ddb67d641357",
+          "cid": "1303191443051123543",
+          "reviewsCount": 365,
+          "imagesCount": 176,
+          "imageCategories": [
+            "All",
+            "Latest",
+            "Videos",
+            "By owner",
+            "Street View & 360°"
+          ],
+          "scrapedAt": "2025-10-28T14:52:57.879Z",
+          "googleFoodUrl": null,
+          "hotelAds": [],
+          "openingHours": [
+            {
+              "day": "Monday",
+              "hours": "8:30 AM to 4:30 PM"
+            },
+            {
+              "day": "Tuesday",
+              "hours": "8:30 AM to 4:30 PM"
+            },
+            {
+              "day": "Wednesday",
+              "hours": "8:30 AM to 4:30 PM"
+            },
+            {
+              "day": "Thursday",
+              "hours": "8:30 AM to 4:30 PM"
+            },
+            {
+              "day": "Friday",
+              "hours": "8:30 AM to 4:30 PM"
+            },
+            {
+              "day": "Saturday",
+              "hours": "Closed"
+            },
+            {
+              "day": "Sunday",
+              "hours": "Closed"
+            }
+          ],
+          "peopleAlsoSearch": [
+            {
+              "category": "People also search for",
+              "title": "Florida Electric & Solar",
+              "reviewsCount": 867,
+              "totalScore": 5
+            },
+            {
+              "category": "People also search for",
+              "title": "Florida Power Services \"The Solar Power Company\"",
+              "reviewsCount": 75,
+              "totalScore": 4.6
+            },
+            {
+              "category": "People also search for",
+              "title": "Solar Energy World",
+              "reviewsCount": 149,
+              "totalScore": 4.6
+            },
+            {
+              "category": "People also search for",
+              "title": "Freedom Solar Power - Tampa Solar Panel Company & Installers",
+              "reviewsCount": 162,
+              "totalScore": 4.6
+            },
+            {
+              "category": "People also search for",
+              "title": "Transform Solar",
+              "reviewsCount": 161,
+              "totalScore": 5
+            }
+          ],
+          "placesTags": [],
+          "reviewsTags": [
+            {
+              "title": "questions",
+              "count": 52
+            },
+            {
+              "title": "crew",
+              "count": 46
+            },
+            {
+              "title": "installation",
+              "count": 31
+            },
+            {
+              "title": "veteran",
+              "count": 18
+            },
+            {
+              "title": "work",
+              "count": 16
+            },
+            {
+              "title": "office",
+              "count": 14
+            },
+            {
+              "title": "pool heater",
+              "count": 8
+            },
+            {
+              "title": "solar panels",
+              "count": 8
+            },
+            {
+              "title": "team leader",
+              "count": 5
+            },
+            {
+              "title": "educating",
+              "count": 5
+            }
+          ],
+          "additionalInfo": {
+            "From the business": [
+              {
+                "Identifies as veteran-owned": true
+              }
+            ],
+            "Service options": [
+              {
+                "Onsite services": true
+              }
+            ],
+            "Accessibility": [
+              {
+                "Wheelchair accessible entrance": true
+              },
+              {
+                "Wheelchair accessible parking lot": true
+              }
+            ],
+            "Amenities": [
+              {
+                "Gender-neutral restroom": true
+              }
+            ],
+            "Crowd": [
+              {
+                "LGBTQ+ friendly": true
+              },
+              {
+                "Transgender safespace": true
+              }
+            ],
+            "Parking": [
+              {
+                "Free parking lot": true
+              }
+            ]
+          },
+          "gasPrices": [],
+          "url": "https://www.google.com/maps/search/?api=1&query=Tampa%20Bay%20Solar&query_place_id=ChIJxTquJLbEwogRVxNkfbbdFRI",
+          "searchPageUrl": "https://www.google.com/maps/search/Solar%20Panel/@27.875370666450614,-82.42018159999999,13z?hl=en",
+          "searchString": "Solar Panel",
+          "language": "en",
+          "rank": 8,
+          "isAdvertisement": false,
+          "imageUrl": "https://lh3.googleusercontent.com/p/AF1QipNGotc-19L1bjTCdTKrAk769NM7fIuE2W0aTRkD=w538-h240-k-no",
+          "kgmid": "/g/11b69k0d_t",
+          "subTitle": null,
+          "description": null,
+          "locatedIn": null,
+          "plusCode": "XJ36+3V Tampa, Florida",
+          "menu": null,
+          "reviewsDistribution": {
+            "oneStar": 21,
+            "twoStar": 2,
+            "threeStar": 0,
+            "fourStar": 6,
+            "fiveStar": 336
+          },
+          "reserveTableUrl": null,
+          "hotelStars": null,
+          "hotelDescription": null,
+          "checkInDate": null,
+          "checkOutDate": null,
+          "similarHotelsNearby": null,
+          "hotelReviewSummary": null,
+          "additionalOpeningHours": null,
+          "openingHoursBusinessConfirmationText": null,
+          "questionsAndAnswers": [
+            {
+              "question": "i have a 3 year old roof with a 20 year warranty will this void my warranty and will it affect my home owners insurance  ",
+              "answers": [
+                {
+                  "answer": "John,  Thank you for the question.  Your roof warranty will remain. We will warranty our work for the solar installation and any penetrations made by our team for the life of the roof.  You are in good hands with Tampa Bay Solar.  ",
+                  "answeredBy": {}
+                }
+              ],
+              "askDate": "3 years ago",
+              "askedBy": {}
+            }
+          ],
+          "updatesFromCustomers": null,
+          "userPlaceNote": null,
+          "webResults": [],
+          "tableReservationLinks": [],
+          "bookingLinks": [],
+          "orderBy": [],
+          "restaurantData": {
+            "tableReservationProvider": null
+          },
+          "ownerUpdates": [
+            {
+              "text": "Losing power without realizing it? Dirt and debris can cut solar output by up to 25% and rain won’t fix it.\n\nOur latest blog explains how clean panels maximize energy, boost savings, and protect your investment. Don’t let grime steal your sunshine—read now.",
+              "buttonText": "Learn more",
+              "buttonLink": "https://tampabaysolar.com/blog/can-dirty-panels-produce-less-solar/",
+              "date": "2025-10-27T06:45:23.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipNhkPtGD5V1msVwtV67mxDkmJftb-YWVKi8WtvW=h400-no"
+            },
+            {
+              "text": "BREAKING: 2025 hurricanes predicted to be STRONGER than ever - and solar panels alone WON'T save you when the grid fails!\n\nThe shocking truth? You need battery storage or you'll still be powerless for days. Our new blog reveals which battery type could save your family when the next storm hits Florida.\n\nDon't get caught unprepared again!",
+              "buttonText": "Learn more",
+              "buttonLink": "https://tampabaysolar.com/blog/storm-ready-power-why-battery-storage-matters-more-than-ever/",
+              "date": "2025-10-21T14:21:10.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipOBrbZDNKDUIOoNG87VVqulqCEbvVqOrqWUUsBE=h400-no"
+            },
+            {
+              "text": "WATCH: While 1.7 MILLION Florida homes went DARK for DAYS during Milton & Helene - this family never lost power!\nTampa Bay Solar + battery backup = lights on, AC running, phones charged while entire neighborhoods sat powerless.\nHurricane season ISN'T over yet!\nURGENT: Federal solar tax credit ENDS December 2025 - your last chance to save 30% on solar + battery systems!\nDon't wait until the next storm leaves you powerless AND broke from missed savings.",
+              "buttonText": "Learn more",
+              "buttonLink": "https://tampabaysolar.com/",
+              "date": "2025-10-14T11:51:10.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipPyViTWNmRrPadWXHk09tjAckn3G8lHE27gd5wA=h400-no"
+            },
+            {
+              "text": "Our new website is finally live, and we're excited to share it with you.\n\n\"We built this site to make solar simple for our community. It's all about helping you take control of your energy future,\" says Steve Rutherford, founder and CEO of Tampa Bay Solar.\n\nExplore what we offer, get instant quotes, and see real results from our Florida installs—all in one place. Because when it comes to your home and your energy, you should Own Your Power.",
+              "buttonText": "Learn more",
+              "buttonLink": "https://tampabaysolar.com/",
+              "date": "2025-10-09T14:48:17.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipO9ZdV_EJavA-UijYwS_uYq1NC-KFDXWzeBD88A=h400-no"
+            },
+            {
+              "text": "Most Florida homeowners worry solar will spike their premiums. The truth? You might actually SAVE money on insurance while slashing energy bills.\nBut there's a catch - not all policies are created equal. Some insurers love solar, others... not so much. Don't get burned by bad coverage!",
+              "buttonText": "Learn more",
+              "buttonLink": "https://tampabaysolar.com/blog/the-impact-of-solar-panels-on-home-insurance-rates-and-coverage/",
+              "date": "2025-10-07T15:21:13.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipPrUJcVRTggMT_EElUHHhjAGVbM38R1eegHu1eh=h400-no"
+            },
+            {
+              "text": "Solar backup batteries keep you powered when late-season hurricanes threaten Florida! While neighbors scramble for generators and wait in darkness, you'll have reliable power for lights, refrigeration, and essentials.\n\nStorm-proof your home NOW before the next hurricane hits Florida",
+              "buttonText": "Learn more",
+              "buttonLink": "https://tampabaysolar.com/",
+              "date": "2025-10-03T06:48:12.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipOIh0U4RoKWCU-g7k6G2DfQXEFxy3EMf6zL2DAk=h400-no"
+            },
+            {
+              "text": "Hotel energy bills are soaring as travelers want greener, affordable stays. Solar helps hotels cut costs, attract eco‑friendly guests, and create jobs, with tourism solar use growing 15% yearly.\n\n Learn from our blog how this shift is transforming the industry and why now is the time to switch. ",
+              "buttonText": "Learn more",
+              "buttonLink": "https://tampabaysolar.com/blog/how-solar-energy-is-powering-the-tourism-industry/",
+              "date": "2025-09-25T10:28:32.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipN2AjZroxjsTZS7VBqLJUa3ENsG5EtfKffBtc1M=h400-no"
+            },
+            {
+              "text": "Our latest blog reveals how storm-tested solar-plus-battery systems kept Florida homes powered through Hurricanes Helene and Milton in 2024, while the Tampa Bay area and 3+ million people across the state lost power.\n\nDon't wait for the next storm.\nStay powered. Stay prepared.",
+              "buttonText": "Learn more",
+              "buttonLink": "https://tampabaysolar.com/blog/solar-energy-disaster-relief/",
+              "date": "2025-09-18T10:48:18.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipPMRrPF6aPRabJi-p9AupsKuUAorp-6nN45FxAH=h400-no"
+            },
+            {
+              "text": "Meet Stephen and his wife: Both proud veterans saving over $4,500 a year on energy costs by going solar! Listen to Stephen share why making the switch to solar was their best decision.",
+              "buttonText": "Learn more",
+              "buttonLink": "https://tampabaysolar.com/",
+              "date": "2025-09-11T13:56:03.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipOhow0R0f77GvEQyktarp-6kzb7jjIvkoL_E4jJ=h400-no"
+            },
+            {
+              "text": "Florida power bills are up 60% since 2020. Find out how solar is helping local businesses and not-for-profits lower costs and gain long-term stability. ",
+              "buttonText": "Learn more",
+              "buttonLink": "https://tampabaysolar.com/blog/how-solar-energy-helps-florida-businesses-and-not-for-profit/",
+              "date": "2025-09-05T07:14:18.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipOdvQM-eGZf2UGjnglY8VDjJF-iBm6PoJfFq1ic=h400-no"
+            }
+          ],
+          "domain": "tampabaysolar.com",
+          "scrapedUrls": [
+            "https://tampabaysolar.com/",
+            "https://tampabaysolar.com/solar-faqs/",
+            "https://tampabaysolar.com/about-us/",
+            "https://tampabaysolar.com/blog/how-solar-energy-helps-florida-businesses-and-not-for-profit/",
+            "https://tampabaysolar.com/blog/"
+          ],
+          "emails": [],
+          "phones": [
+            "813-827-6527"
+          ],
+          "phonesUncertain": [],
+          "linkedIns": [
+            "https://www.linkedin.com/company/tampa-bay-solar"
+          ],
+          "twitters": [],
+          "instagrams": [
+            "https://www.instagram.com/tampa.baysolar"
+          ],
+          "facebooks": [
+            "https://www.facebook.com/tampabaysolar"
+          ],
+          "youtubes": [
+            "https://www.youtube.com/@TampaBaySolar"
+          ],
+          "tiktoks": [],
+          "pinterests": [],
+          "discords": [],
+          "snapchats": [],
+          "threads": [],
+          "telegrams": [],
+          "reddits": [],
+          "whatsapps": [],
+          "imageUrls": [],
+          "images": null,
+          "reviews": [],
+          "leadsEnrichment": null
+        }
+      },
+      {
+        "json": {
+          "title": "Lixia Solar",
+          "price": null,
+          "categoryName": "Solar energy system service",
+          "address": "615 Channelside Dr Suite 207, Tampa, FL 33602",
+          "neighborhood": "Channel District",
+          "street": "615 Channelside Dr Suite 207",
+          "city": "Tampa",
+          "postalCode": "33602",
+          "state": "Florida",
+          "countryCode": "US",
+          "website": "https://www.lixiasolar.com/",
+          "phone": "(813) 819-7105",
+          "phoneUnformatted": "+18138197105",
+          "claimThisBusiness": true,
+          "location": {
+            "lat": 27.9433655,
+            "lng": -82.4469428
+          },
+          "totalScore": 4.7,
+          "permanentlyClosed": false,
+          "temporarilyClosed": false,
+          "placeId": "ChIJwxPPex_FwogRU202usTy2mA",
+          "categories": [
+            "Solar energy system service"
+          ],
+          "fid": "0x88c2c51f7bcf13c3:0x60daf2c4ba366d53",
+          "cid": "6979157499315645779",
+          "reviewsCount": 43,
+          "imagesCount": 1,
+          "imageCategories": [
+            "All",
+            "Street View & 360°"
+          ],
+          "scrapedAt": "2025-10-28T14:52:58.886Z",
+          "googleFoodUrl": null,
+          "hotelAds": [],
+          "openingHours": [
+            {
+              "day": "Monday",
+              "hours": "9 AM to 5 PM"
+            },
+            {
+              "day": "Tuesday",
+              "hours": "9 AM to 5 PM"
+            },
+            {
+              "day": "Wednesday",
+              "hours": "9 AM to 5 PM"
+            },
+            {
+              "day": "Thursday",
+              "hours": "9 AM to 5 PM"
+            },
+            {
+              "day": "Friday",
+              "hours": "9 AM to 5 PM"
+            },
+            {
+              "day": "Saturday",
+              "hours": "Closed"
+            },
+            {
+              "day": "Sunday",
+              "hours": "Closed"
+            }
+          ],
+          "peopleAlsoSearch": [],
+          "placesTags": [],
+          "reviewsTags": [
+            {
+              "title": "company",
+              "count": 13
+            },
+            {
+              "title": "team",
+              "count": 10
+            },
+            {
+              "title": "questions",
+              "count": 7
+            },
+            {
+              "title": "renewable energy",
+              "count": 3
+            },
+            {
+              "title": "efficient",
+              "count": 3
+            },
+            {
+              "title": "technicians",
+              "count": 2
+            },
+            {
+              "title": "sustainable",
+              "count": 2
+            },
+            {
+              "title": "energy bills",
+              "count": 2
+            },
+            {
+              "title": "savings",
+              "count": 2
+            },
+            {
+              "title": "pricing",
+              "count": 2
+            }
+          ],
+          "additionalInfo": {
+            "Accessibility": [
+              {
+                "Wheelchair accessible parking lot": true
+              }
+            ]
+          },
+          "gasPrices": [],
+          "url": "https://www.google.com/maps/search/?api=1&query=Lixia%20Solar&query_place_id=ChIJwxPPex_FwogRU202usTy2mA",
+          "searchPageUrl": "https://www.google.com/maps/search/Solar%20Panel/@27.875370666450614,-82.42018159999999,13z?hl=en",
+          "searchString": "Solar Panel",
+          "language": "en",
+          "rank": 7,
+          "isAdvertisement": false,
+          "imageUrl": "https://streetviewpixels-pa.googleapis.com/v1/thumbnail?panoid=-TtqhSW9P1kux8fsUnTUTA&cb_client=search.gws-prod.gps&w=408&h=240&yaw=168.65279&pitch=0&thumbfov=100",
+          "kgmid": "/g/11x21fd7gj",
+          "subTitle": null,
+          "description": null,
+          "locatedIn": null,
+          "plusCode": "WHV3+86 Tampa, Florida",
+          "menu": null,
+          "reviewsDistribution": {
+            "oneStar": 3,
+            "twoStar": 0,
+            "threeStar": 0,
+            "fourStar": 0,
+            "fiveStar": 40
+          },
+          "reserveTableUrl": null,
+          "hotelStars": null,
+          "hotelDescription": null,
+          "checkInDate": null,
+          "checkOutDate": null,
+          "similarHotelsNearby": null,
+          "hotelReviewSummary": null,
+          "additionalOpeningHours": null,
+          "openingHoursBusinessConfirmationText": null,
+          "questionsAndAnswers": [],
+          "updatesFromCustomers": null,
+          "userPlaceNote": null,
+          "webResults": [],
+          "tableReservationLinks": [],
+          "bookingLinks": null,
+          "orderBy": [],
+          "restaurantData": {
+            "tableReservationProvider": null
+          },
+          "ownerUpdates": [],
+          "domain": "lixiasolar.com",
+          "scrapedUrls": [
+            "https://www.lixiasolar.com/",
+            "https://www.lixiasolar.com/#",
+            "https://www.lixiasolar.com/#new-menu-item",
+            "https://www.lixiasolar.com/home-842510",
+            "https://www.lixiasolar.com/home-842510"
+          ],
+          "emails": [],
+          "phones": [
+            "18138197105"
+          ],
+          "phonesUncertain": [
+            "(813) 819-7105"
+          ],
+          "linkedIns": [],
+          "twitters": [],
+          "instagrams": [],
+          "facebooks": [],
+          "youtubes": [],
+          "tiktoks": [],
+          "pinterests": [],
+          "discords": [],
+          "snapchats": [],
+          "threads": [],
+          "telegrams": [],
+          "reddits": [],
+          "whatsapps": [],
+          "imageUrls": [],
+          "images": null,
+          "reviews": [],
+          "leadsEnrichment": null
+        }
+      },
+      {
+        "json": {
+          "title": "Florida Power Services \"The Solar Power Company\"",
+          "price": null,
+          "categoryName": "Solar energy company",
+          "address": "309 S Fremont Ave APT 1, Tampa, FL 33606",
+          "neighborhood": "South Tampa",
+          "street": "309 S Fremont Ave APT 1",
+          "city": "Tampa",
+          "postalCode": "33606",
+          "state": "Florida",
+          "countryCode": "US",
+          "website": "https://www.floridapowerservices.com/",
+          "phone": "(727) 667-9955",
+          "phoneUnformatted": "+17276679955",
+          "claimThisBusiness": false,
+          "location": {
+            "lat": 27.9414042,
+            "lng": -82.4790862
+          },
+          "totalScore": 4.6,
+          "permanentlyClosed": false,
+          "temporarilyClosed": false,
+          "placeId": "ChIJ_2wgbovEwogRLPUXKMKmg_Q",
+          "categories": [
+            "Solar energy company",
+            "Solar energy system service",
+            "Solar energy equipment supplier"
+          ],
+          "fid": "0x88c2c48b6e206cff:0xf483a6c22817f52c",
+          "cid": "17619109520030037292",
+          "reviewsCount": 75,
+          "imagesCount": 92,
+          "imageCategories": [
+            "All",
+            "By owner",
+            "Street View & 360°"
+          ],
+          "scrapedAt": "2025-10-28T14:53:00.206Z",
+          "googleFoodUrl": null,
+          "hotelAds": [],
+          "openingHours": [
+            {
+              "day": "Monday",
+              "hours": "7 AM to 7 PM"
+            },
+            {
+              "day": "Tuesday",
+              "hours": "7 AM to 7 PM"
+            },
+            {
+              "day": "Wednesday",
+              "hours": "7 AM to 7 PM"
+            },
+            {
+              "day": "Thursday",
+              "hours": "7 AM to 7 PM"
+            },
+            {
+              "day": "Friday",
+              "hours": "7 AM to 7 PM"
+            },
+            {
+              "day": "Saturday",
+              "hours": "7 to 11 AM"
+            },
+            {
+              "day": "Sunday",
+              "hours": "8 to 11 AM"
+            }
+          ],
+          "peopleAlsoSearch": [
+            {
+              "category": "People also search for",
+              "title": "Florida Electric & Solar",
+              "reviewsCount": 867,
+              "totalScore": 5
+            },
+            {
+              "category": "People also search for",
+              "title": "Tampa Bay Solar",
+              "reviewsCount": 365,
+              "totalScore": 4.7
+            },
+            {
+              "category": "People also search for",
+              "title": "Freedom Solar Power - Tampa Solar Panel Company & Installers",
+              "reviewsCount": 162,
+              "totalScore": 4.6
+            },
+            {
+              "category": "People also search for",
+              "title": "Powersol USA",
+              "reviewsCount": 39,
+              "totalScore": 5
+            },
+            {
+              "category": "People also search for",
+              "title": "Solar Energy World",
+              "reviewsCount": 149,
+              "totalScore": 4.6
+            }
+          ],
+          "placesTags": [],
+          "reviewsTags": [
+            {
+              "title": "roof",
+              "count": 13
+            },
+            {
+              "title": "questions",
+              "count": 11
+            },
+            {
+              "title": "electrical",
+              "count": 8
+            },
+            {
+              "title": "quote",
+              "count": 7
+            },
+            {
+              "title": "solar panels",
+              "count": 6
+            },
+            {
+              "title": "bill",
+              "count": 6
+            },
+            {
+              "title": "install",
+              "count": 6
+            },
+            {
+              "title": "work",
+              "count": 5
+            },
+            {
+              "title": "estimate",
+              "count": 5
+            },
+            {
+              "title": "inspection",
+              "count": 5
+            }
+          ],
+          "additionalInfo": {
+            "Service options": [
+              {
+                "Onsite services": true
+              }
+            ],
+            "Accessibility": [
+              {
+                "Wheelchair accessible entrance": true
+              },
+              {
+                "Wheelchair accessible parking lot": true
+              }
+            ]
+          },
+          "gasPrices": [],
+          "url": "https://www.google.com/maps/search/?api=1&query=Florida%20Power%20Services%20%22The%20Solar%20Power%20Company%22&query_place_id=ChIJ_2wgbovEwogRLPUXKMKmg_Q",
+          "searchPageUrl": "https://www.google.com/maps/search/Solar%20Panel/@27.875370666450614,-82.42018159999999,13z?hl=en",
+          "searchString": "Solar Panel",
+          "language": "en",
+          "rank": 5,
+          "isAdvertisement": false,
+          "imageUrl": "https://lh3.googleusercontent.com/p/AF1QipMFNFwLQCsQGq0PvID5R5tTYTYODrhkuSJinYCg=w426-h240-k-no",
+          "kgmid": "/g/12j8hvz4r",
+          "subTitle": null,
+          "description": null,
+          "locatedIn": null,
+          "plusCode": "WGRC+H9 Tampa, Florida",
+          "menu": null,
+          "reviewsDistribution": {
+            "oneStar": 7,
+            "twoStar": 0,
+            "threeStar": 1,
+            "fourStar": 0,
+            "fiveStar": 67
+          },
+          "reserveTableUrl": null,
+          "hotelStars": null,
+          "hotelDescription": null,
+          "checkInDate": null,
+          "checkOutDate": null,
+          "similarHotelsNearby": null,
+          "hotelReviewSummary": null,
+          "additionalOpeningHours": null,
+          "openingHoursBusinessConfirmationText": null,
+          "questionsAndAnswers": [
+            {
+              "question": "What is your estimate of the value added to my home if I have installed a solar energy system?",
+              "answers": [
+                {
+                  "answer": "This is a common question with many answers, I would say the added value would be the net cost of the system after the tax credit.\n\nThere are other studies that suggest a $20 increase in property value for each dollar saved in electric costs.\n\nAt the end of the day its only worth what the next buyer is willing to pay.\n\nThanks for asking",
+                  "answeredBy": {}
+                }
+              ],
+              "askDate": "7 years ago",
+              "askedBy": {}
+            }
+          ],
+          "updatesFromCustomers": null,
+          "userPlaceNote": null,
+          "webResults": [],
+          "tableReservationLinks": [],
+          "bookingLinks": [],
+          "orderBy": [],
+          "restaurantData": {
+            "tableReservationProvider": null
+          },
+          "ownerUpdates": [
+            {
+              "text": "The critical window to maximize your solar savings in Pinellas County is closing. To claim the substantial 30% Federal Clean Energy Tax Credit, your solar system must be installed and fully operational by December 31, 2025. This deadline is complicated by the existing, and worsening, backlog in Pinellas County's permitting and plan review process. Every week of delay increases your risk of missing this non-negotiable deadline.\n\nFlorida Power Services is here to ensure you do not miss out on this financial opportunity. We specialize in navigating the local permitting challenges and prioritizing timely installation to secure your federal incentives before they expire. What steps are you taking today to guarantee your family's future energy savings?\n\n➤ Read our full blog post, \"☀️ Florida Solar Power Savings | Why Solar Beats Florida Utilities,\" on our website:\n",
+              "buttonText": "Call now",
+              "buttonLink": null,
+              "date": "2025-10-17T21:21:00.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipNgI1WfalGHJW4mQITtJnuRN1-cnDQZrZofn_X3=h400-no"
+            },
+            {
+              "text": "The opportunity for significant solar savings in Pinellas County is time-sensitive. The most valuable federal incentives, including the 30% Clean Energy Tax Credit, are set to expire, and your system must be fully operational by December 31, 2025, to qualify. Pinellas County permitting is already experiencing substantial delays, which are only expected to grow as the deadline approaches. Waiting to start your project could mean missing the cutoff entirely and losing thousands of dollars in potential savings.\n\nFlorida Power Services, \"The Solar Power Company,\" understands the urgency. We are committed to securing your energy future by expediting the process, managing permitting, and guaranteeing a timely installation to lock in your federal incentives. What is the biggest hurdle currently preventing you from making the switch to solar?\n\n➤ Read our full blog post, \"Don’t Wait for Pinellas County Solar: Call Now Before Incentives Expire,\" on our website:\n",
+              "buttonText": "Call now",
+              "buttonLink": null,
+              "date": "2025-10-15T20:47:14.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipPJkX7WEmHtvByLQSmV2OkZfuXj3vlw6WQzGYNp=h400-no"
+            },
+            {
+              "text": "For many non-profit leaders in Florida, the constant pressure of increasing operational costs, especially utility bills, is a significant burden. These expenses directly impede their capacity to fulfill their crucial missions, diverting funds that could otherwise provide critical support, expand outreach, or directly benefit those they serve.\n\nFlorida Power Services, \"The Solar Power Company,\" specializes in making solar accessible for non-profits. We detail innovative financing models that eliminate the need for any initial investment, allowing organizations to start saving from day one. This means more funds for your core programs, increased financial stability & a greener footprint for your invaluable work.\n\n➤ Read our full blog post, \"Solar for Nonprofits: Go Solar in Florida with No Upfront Cost,\" on our website:\n",
+              "buttonText": null,
+              "buttonLink": null,
+              "date": "2025-10-10T19:55:08.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipOWYk3RIdW0Dj1y8Z97r8F7jmRTqgTbmfEGCJrG=h400-no"
+            },
+            {
+              "text": "Pinellas County Homeowners: The biggest financial opportunity for solar is closing soon!\n\nOur latest article details the critical deadline of December 31, 2025, for securing the substantial Federal Clean Energy Credit (up to 30%) and the 10% Domestic Content Adder. These vital incentives, designed to make solar affordable, will not last. With Pinellas County's permitting process already experiencing significant delays, delaying your decision risks losing thousands in potential savings.\n\nAt Florida Power Services, our experienced team is dedicated to guiding you through every step, ensuring your project is completed efficiently to secure your incentives before time runs out.\n\n➤ Read our full blog post, \"🌞Pinellas County Solar Installation: Act Before 2025 Incentives Expire,\" on our website:\n",
+              "buttonText": "Call now",
+              "buttonLink": null,
+              "date": "2025-10-03T19:57:14.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipNOt1_Lb53jUZgiHiKl-vm8dUEOCra0KLN-UQB1=h400-no"
+            },
+            {
+              "text": "It is deeply concerning when a homeowner invests in solar power only to have their installation company vanish. We empathize with the sense of abandonment felt by these \"orphaned\" solar clients across Florida, who are often left dealing with roof leaks, broken panels, and complex inverter error codes.\n\nFlorida Power Services is here to assure you that your investment is not lost. Established in 2007, we specialize in stepping in where others have failed, providing formal service for removal and reinstallation (R&R), expert roof leak repairs, and comprehensive inverter diagnostics. Our commitment is to restore your system’s efficiency and your peace of mind by reinforcing your system with durable, reliable solutions built for Florida’s tough climate.\n\nHow important is knowing your solar company will be around for the life of your system?\n\nRead our full blog post, \"🌞 Solar Company Out of Business? We Help Orphaned Solar Clients in Florida,\" on our website:\n➤ ",
+              "buttonText": "Call now",
+              "buttonLink": null,
+              "date": "2025-09-30T22:55:52.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipOtRrZv6olaFGgxY4s1pDylPX3PN0Fj3DY-Qys2=h400-no"
+            },
+            {
+              "text": "Florida Power Services is here to offer clarity on your most important home investment. When choosing solar battery storage, the difference between reliable backup and system failure is in the details, especially here in Florida. We offer a supportive, honest comparison between the industry leaders, the Tesla Powerwall 3 and the Enphase IQ Battery 10C.\n\nOur detailed analysis confirms that the Enphase system is engineered better for Florida’s AC-heavy homes, offering superior surge handling, complete generator compatibility, and industry-leading warranties up to 25 years. This choice translates directly to greater security and long-term savings for your family.\n\nAre you prepared to lock in the highest federal incentives, securing up to 40% back, before the December 2025 deadline? Do not miss this opportunity for true energy independence.\n\nRead our full blog post, \"⚡Tesla Powerwall 3 vs Enphase IQ Battery 10C: Solar Battery Comparison,\" on our website:\n➤ ",
+              "buttonText": "Call now",
+              "buttonLink": null,
+              "date": "2025-09-29T19:56:06.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipPqqH7eVVhsE9UaDKiuYWZcr9-3wRwLdy7me2ve=h400-no"
+            },
+            {
+              "text": "Many companies won't tell you this, but installing panels on fragile tile roofs like Spanish or barrel styles dramatically increases your risk of leaks and adds unnecessary costs. It simply isn't the best way to secure your investment.\n\nAt Florida Power Services, our priority is supporting your home, not risking it. We'll show you why ground-mounted solar systems are often the safest, most secure choice in Florida. It's the smarter way to save money and protect your property.\n\nWhat is worth more: protecting your beautiful roof or chasing a risky installation?\n\nRead our full blog post, \"Solar on a Tile Roof vs Ground Mount: What You Need to Know 🏡⚡,\" on our website:\n➤ ",
+              "buttonText": "Call now",
+              "buttonLink": null,
+              "date": "2025-09-26T21:20:56.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipP8i3NS8WIUWXVrhCMrU5iudiR3TFE5la2-toCG=h400-no"
+            },
+            {
+              "text": "Is your dream of going solar on hold? Many Florida homeowners are facing a new challenge, solar panel shortages. Due to a perfect storm of factors, from increased demand to new federal tariffs, securing your solar panels is more time-sensitive than ever. We're talking to families just like yours who are worried that their wait might cost them the chance to lock in valuable savings.\n\nAt Florida Power Services, we believe in empowering you to take control of your energy future, not just waiting for it to happen. Don't let hesitation turn your dream into a missed opportunity.\n\nLearn more about the current solar landscape in Florida and how acting now can save you time and money.\n\nRead our full blog post, \"☀️🏡⚡Solar Panel Shortages in Florida: Why Acting Now Saves Time and Money,\" on our website:\n➤ ",
+              "buttonText": "Call now",
+              "buttonLink": null,
+              "date": "2025-09-25T21:13:15.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipO_skAJ_PqGX29nRBhCKe4ZGcEoX1DCmvx6juhy=h400-no"
+            },
+            {
+              "text": "Navigating the world of investments can feel daunting, with market fluctuations and uncertain returns. Many of us dream of an investment that offers both financial growth and a sense of security. The truth is, that investment may be closer than you think, right on your roof.\n\nAt Florida Power Services, we believe in a better way to invest. A solar energy system for your Florida home provides predictable, compounding financial returns. Our detailed analysis shows how a typical solar installation can have a first-year ROI of over 39% and a simple payback in just over two years. This is a secure investment that saves you money and hedges against rising utility costs.\n\nWhat if your home could be the most reliable, high-performing investment in your portfolio?\n\nRead our full blog post, \"☀️🏡Solar Investment in Florida: How It Compares to the Stock Market,\" on our website:\n➤ ",
+              "buttonText": "Call now",
+              "buttonLink": null,
+              "date": "2025-09-24T21:11:14.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipMbOB6ABazQPKVffNoqTHc68dbuBVkRPkYvbyRH=h400-no"
+            },
+            {
+              "text": "The journey to solar power should be one of confidence, not uncertainty. While many companies offer an all-in-one solution for your home's needs, from roofing to AC, this broad focus can come at a cost to the quality and long-term performance of your solar energy system.\n\nA licensed solar contractor, however, is a specialist dedicated to this one, precise field. Their singular focus ensures that your panels are securely anchored to withstand hurricane winds and that every wire and component is installed to perfection.\n\nRead more about why licensed solar contractors outperform all-in-one companies and get the assurance you deserve.\n\nRead our full blog post, \"☀️🏡Licensed Solar Contractors in Florida Outperform All-in-One Companies,\" on our website:\n➤",
+              "buttonText": "Call now",
+              "buttonLink": null,
+              "date": "2025-09-22T21:49:34.000Z",
+              "imageUrl": "https://lh3.googleusercontent.com/geougc/AF1QipP70OhTm16cUxHWmeTiOFcM0KDFqwYbqHwbrlPf=h400-no"
+            }
+          ],
+          "domain": "floridapowerservices.com",
+          "scrapedUrls": [
+            "https://www.floridapowerservices.com/",
+            "https://www.floridapowerservices.com/blog/",
+            "https://www.floridapowerservices.com/",
+            "https://www.floridapowerservices.com/dont-wait-for-pinellas-county-solar-call-now-before-incentives-expire/",
+            "https://www.floridapowerservices.com/about/"
+          ],
+          "emails": [],
+          "phones": [
+            "727-667-9955",
+            "7276679955"
+          ],
+          "phonesUncertain": [
+            "(727) 667-9955",
+            "27.941404",
+            "82.479086",
+            "2007100"
+          ],
+          "linkedIns": [
+            "https://www.linkedin.com/in/solarsolutionstampabay",
+            "https://www.linkedin.com/company/florida-power-services-inc-"
+          ],
+          "twitters": [],
+          "instagrams": [],
+          "facebooks": [
+            "https://www.facebook.com/FPSTampa",
+            "http://www.facebook.com/fpssolar"
+          ],
+          "youtubes": [],
+          "tiktoks": [],
+          "pinterests": [],
+          "discords": [],
+          "snapchats": [],
+          "threads": [],
+          "telegrams": [],
+          "reddits": [],
+          "whatsapps": [],
+          "imageUrls": [],
+          "images": null,
+          "reviews": [],
+          "leadsEnrichment": null
+        }
+      },
+      {
+        "json": {
+          "title": "Florida Electric & Solar",
+          "price": null,
+          "categoryName": "Solar energy company",
+          "address": "302 Knights Run Ave # 1150, Tampa, FL 33602",
+          "neighborhood": "Southeast Tampa",
+          "street": "302 Knights Run Ave # 1150",
+          "city": "Tampa",
+          "postalCode": "33602",
+          "state": "Florida",
+          "countryCode": "US",
+          "website": "http://www.floridaelectricandsolar.com/",
+          "phone": "(833) 704-7336",
+          "phoneUnformatted": "+18337047336",
+          "claimThisBusiness": false,
+          "location": {
+            "lat": 27.9375928,
+            "lng": -82.4528427
+          },
+          "totalScore": 5,
+          "permanentlyClosed": false,
+          "temporarilyClosed": false,
+          "placeId": "ChIJmXBvf6PFwogRbm4KHu0DicA",
+          "categories": [
+            "Solar energy company",
+            "Green energy supplier",
+            "Roofing contractor",
+            "Solar energy system service",
+            "Solar energy equipment supplier",
+            "Utility contractor"
+          ],
+          "fid": "0x88c2c5a37f6f7099:0xc08903ed1e0a6e6e",
+          "cid": "13873624444037656174",
+          "reviewsCount": 867,
+          "imagesCount": 218,
+          "imageCategories": [
+            "All",
+            "By owner",
+            "Street View & 360°"
+          ],
+          "scrapedAt": "2025-10-28T14:53:00.746Z",
+          "googleFoodUrl": null,
+          "hotelAds": [],
+          "openingHours": [
+            {
+              "day": "Monday",
+              "hours": "8 AM to 6 PM"
+            },
+            {
+              "day": "Tuesday",
+              "hours": "8 AM to 6 PM"
+            },
+            {
+              "day": "Wednesday",
+              "hours": "8 AM to 6 PM"
+            },
+            {
+              "day": "Thursday",
+              "hours": "8 AM to 6 PM"
+            },
+            {
+              "day": "Friday",
+              "hours": "8 AM to 6 PM"
+            },
+            {
+              "day": "Saturday",
+              "hours": "8 AM to 6 PM"
+            },
+            {
+              "day": "Sunday",
+              "hours": "10 AM to 6 PM"
+            }
+          ],
+          "peopleAlsoSearch": [
+            {
+              "category": "People also search for",
+              "title": "Tampa Bay Solar",
+              "reviewsCount": 365,
+              "totalScore": 4.7
+            },
+            {
+              "category": "People also search for",
+              "title": "Florida Power Services \"The Solar Power Company\"",
+              "reviewsCount": 75,
+              "totalScore": 4.6
+            },
+            {
+              "category": "People also search for",
+              "title": "Freedom Solar Power - Tampa Solar Panel Company & Installers",
+              "reviewsCount": 162,
+              "totalScore": 4.6
+            },
+            {
+              "category": "People also search for",
+              "title": "Transform Solar",
+              "reviewsCount": 161,
+              "totalScore": 5
+            },
+            {
+              "category": "People also search for",
+              "title": "Florida Solar LLC",
+              "reviewsCount": 61,
+              "totalScore": 4.9
+            }
+          ],
+          "placesTags": [],
+          "reviewsTags": [
+            {
+              "title": "savings",
+              "count": 32
+            },
+            {
+              "title": "honesty",
+              "count": 19
+            },
+            {
+              "title": "sales",
+              "count": 19
+            },
+            {
+              "title": "roof",
+              "count": 19
+            },
+            {
+              "title": "decision",
+              "count": 18
+            },
+            {
+              "title": "integrity",
+              "count": 13
+            },
+            {
+              "title": "inspection",
+              "count": 11
+            },
+            {
+              "title": "crew",
+              "count": 10
+            },
+            {
+              "title": "panels",
+              "count": 10
+            },
+            {
+              "title": "sincerity",
+              "count": 8
+            }
+          ],
+          "additionalInfo": {
+            "Accessibility": [
+              {
+                "Wheelchair accessible entrance": true
+              },
+              {
+                "Wheelchair accessible parking lot": true
+              },
+              {
+                "Wheelchair accessible restroom": true
+              },
+              {
+                "Wheelchair accessible seating": true
+              }
+            ],
+            "Amenities": [
+              {
+                "Gender-neutral restroom": true
+              }
+            ]
+          },
+          "gasPrices": [],
+          "url": "https://www.google.com/maps/search/?api=1&query=Florida%20Electric%20%26%20Solar&query_place_id=ChIJmXBvf6PFwogRbm4KHu0DicA",
+          "searchPageUrl": "https://www.google.com/maps/search/Solar%20Panel/@27.875370666450614,-82.42018159999999,13z?hl=en",
+          "searchString": "Solar Panel",
+          "language": "en",
+          "rank": 1,
+          "isAdvertisement": false,
+          "imageUrl": "https://lh3.googleusercontent.com/p/AF1QipOymAfCF0UutPEyOo0eR27e8sXQsiGCh4pMc1VR=w426-h240-k-no",
+          "kgmid": "/g/11fs_jzrn9",
+          "subTitle": null,
+          "description": null,
+          "locatedIn": "Two Harbour Place",
+          "plusCode": "WGQW+2V Tampa, Florida",
+          "menu": null,
+          "reviewsDistribution": {
+            "oneStar": 9,
+            "twoStar": 1,
+            "threeStar": 0,
+            "fourStar": 2,
+            "fiveStar": 855
+          },
+          "reserveTableUrl": null,
+          "hotelStars": null,
+          "hotelDescription": null,
+          "checkInDate": null,
+          "checkOutDate": null,
+          "similarHotelsNearby": null,
+          "hotelReviewSummary": null,
+          "additionalOpeningHours": null,
+          "openingHoursBusinessConfirmationText": null,
+          "questionsAndAnswers": [
+            {
+              "question": "Has anyone else been ripped off by Florida Electric and Solar???? Their system only produces 30% of what was sold to me….Been in legal battle now and looking for others to help. ",
+              "answers": [
+                {
+                  "answer": "Yes",
+                  "answeredBy": {}
+                }
+              ],
+              "askDate": "a year ago",
+              "askedBy": {}
+            }
+          ],
+          "updatesFromCustomers": {
+            "text": "Make sure not to leave FES a 5-Star review until you know the truth.\nAs one can see from this photo, their system only covers 35% of my actual power needs. They “sold” me on their system covering 112% of my power needs and that my electric bill would be only a $35 connection fee.\nNow I am paying $140 a month for the solar and $200 a month for electric. $400 during the summer.\n\nAll and all this company should not be trusted.\nI even tried the BBB, and Pinellas Consumer Protection. State now.",
+            "language": "en",
+            "postDate": "a year ago",
+            "postedBy": {
+              "name": "Casa Paradiso",
+              "url": "https://www.google.com/maps/contrib/109701681124248984805?hl=en-US",
+              "title": "Local Guide",
+              "totalReviews": 106
+            },
+            "media": [
+              {
+                "link": "https://lh3.googleusercontent.com/geougc-cs/AMBA38sl6IASrgYvKN8BfLnfk-2RjfydVmWgBhCsa8b9LnoGu249e_mr_5K3xv9rTfAfJqfut9kYpuJmfMZrkqGwTCcpij3pI44CzbfA0KZoiXotBNpZKQwaaZPrl2uEeN4DU92fo-ty",
+                "postDate": "a year ago"
+              }
+            ]
+          },
+          "userPlaceNote": null,
+          "webResults": [],
+          "tableReservationLinks": [],
+          "bookingLinks": [],
+          "orderBy": [],
+          "restaurantData": {
+            "tableReservationProvider": null
+          },
+          "ownerUpdates": [],
+          "domain": "floridaelectricandsolar.com",
+          "scrapedUrls": [
+            "https://floridaelectricandsolar.com/"
+          ],
+          "emails": [],
+          "phones": [],
+          "phonesUncertain": [],
+          "linkedIns": [],
+          "twitters": [],
+          "instagrams": [],
+          "facebooks": [],
+          "youtubes": [],
+          "tiktoks": [],
+          "pinterests": [],
+          "discords": [],
+          "snapchats": [],
+          "threads": [],
+          "telegrams": [],
+          "reddits": [],
+          "whatsapps": [],
+          "imageUrls": [],
+          "images": null,
+          "reviews": [],
+          "leadsEnrichment": []
+        }
+      },
+      {
+        "json": {
+          "title": "Powersol USA",
+          "price": null,
+          "categoryName": "Solar energy company",
+          "address": "600 N Willow Ave, Tampa, FL 33606, United States",
+          "neighborhood": "Northwest Tampa",
+          "street": "600 N Willow Ave",
+          "city": "Tampa",
+          "postalCode": "33606",
+          "state": "Florida",
+          "countryCode": "US",
+          "website": "http://www.powersolusa.com/",
+          "phone": "+1 855-847-6527",
+          "phoneUnformatted": "+18558476527",
+          "claimThisBusiness": false,
+          "location": {
+            "lat": 27.9488509,
+            "lng": -82.4728068
+          },
+          "totalScore": 5,
+          "permanentlyClosed": false,
+          "temporarilyClosed": false,
+          "placeId": "ChIJBzf89aHgxUgRbdt2IiMmmjg",
+          "categories": [
+            "Solar energy company",
+            "Electrician",
+            "Solar energy system service",
+            "Solar energy equipment supplier"
+          ],
+          "fid": "0x48c5e0a1f5fc3707:0x389a26232276db6d",
+          "cid": "4078614344881331053",
+          "reviewsCount": 39,
+          "imagesCount": 44,
+          "imageCategories": [
+            "All",
+            "Latest",
+            "Videos",
+            "By owner",
+            "Street View & 360°"
+          ],
+          "scrapedAt": "2025-10-28T14:53:02.482Z",
+          "googleFoodUrl": null,
+          "hotelAds": [],
+          "openingHours": [
+            {
+              "day": "Monday",
+              "hours": "9 AM to 6 PM"
+            },
+            {
+              "day": "Tuesday",
+              "hours": "9 AM to 6 PM"
+            },
+            {
+              "day": "Wednesday",
+              "hours": "9 AM to 6 PM"
+            },
+            {
+              "day": "Thursday",
+              "hours": "9 AM to 6 PM"
+            },
+            {
+              "day": "Friday",
+              "hours": "9 AM to 6 PM"
+            },
+            {
+              "day": "Saturday",
+              "hours": "9 AM to 6 PM"
+            },
+            {
+              "day": "Sunday",
+              "hours": "Closed"
+            }
+          ],
+          "peopleAlsoSearch": [
+            {
+              "category": "People also search for",
+              "title": "Florida Power Services \"The Solar Power Company\"",
+              "reviewsCount": 75,
+              "totalScore": 4.6
+            },
+            {
+              "category": "People also search for",
+              "title": "Solar Energy World",
+              "reviewsCount": 149,
+              "totalScore": 4.6
+            },
+            {
+              "category": "People also search for",
+              "title": "Solar Solutions Inc.",
+              "reviewsCount": 209,
+              "totalScore": 4.5
+            },
+            {
+              "category": "People also search for",
+              "title": "Ensolar",
+              "reviewsCount": 137,
+              "totalScore": 4.5
+            },
+            {
+              "category": "People also search for",
+              "title": "Tampa Bay Solar",
+              "reviewsCount": 365,
+              "totalScore": 4.7
+            }
+          ],
+          "placesTags": [],
+          "reviewsTags": [
+            {
+              "title": "team",
+              "count": 9
+            },
+            {
+              "title": "system",
+              "count": 6
+            },
+            {
+              "title": "solar panels",
+              "count": 6
+            },
+            {
+              "title": "decision",
+              "count": 5
+            },
+            {
+              "title": "informative",
+              "count": 5
+            },
+            {
+              "title": "roof",
+              "count": 5
+            },
+            {
+              "title": "questions",
+              "count": 5
+            },
+            {
+              "title": "sales",
+              "count": 5
+            },
+            {
+              "title": "cost",
+              "count": 3
+            },
+            {
+              "title": "communication",
+              "count": 3
+            }
+          ],
+          "additionalInfo": {
+            "Service options": [
+              {
+                "On-site services": true
+              }
+            ],
+            "Accessibility": [
+              {
+                "Wheelchair-accessible car park": true
+              },
+              {
+                "Wheelchair-accessible entrance": true
+              }
+            ]
+          },
+          "gasPrices": [],
+          "url": "https://www.google.com/maps/search/?api=1&query=Powersol%20USA&query_place_id=ChIJBzf89aHgxUgRbdt2IiMmmjg",
+          "searchPageUrl": "https://www.google.com/maps/search/Solar%20Panel/@27.875370666450614,-82.42018159999999,13z?hl=en",
+          "searchString": "Solar Panel",
+          "language": "en",
+          "rank": 11,
+          "isAdvertisement": false,
+          "imageUrl": "https://lh3.googleusercontent.com/p/AF1QipPrzndc3x4GiVI_hnOyOIQ-V5DP8PkqRcZzbh8P=w408-h324-k-no",
+          "kgmid": "/g/11t8pddlsd",
+          "subTitle": null,
+          "description": null,
+          "locatedIn": null,
+          "plusCode": "WGXG+GV Tampa, Florida, USA",
+          "menu": null,
+          "reviewsDistribution": {
+            "oneStar": 0,
+            "twoStar": 0,
+            "threeStar": 0,
+            "fourStar": 0,
+            "fiveStar": 39
+          },
+          "reserveTableUrl": null,
+          "hotelStars": null,
+          "hotelDescription": null,
+          "checkInDate": null,
+          "checkOutDate": null,
+          "similarHotelsNearby": null,
+          "hotelReviewSummary": null,
+          "additionalOpeningHours": null,
+          "openingHoursBusinessConfirmationText": null,
+          "questionsAndAnswers": [],
+          "updatesFromCustomers": null,
+          "userPlaceNote": null,
+          "webResults": [],
+          "tableReservationLinks": [],
+          "bookingLinks": [],
+          "orderBy": [],
+          "restaurantData": {
+            "tableReservationProvider": null
+          },
+          "ownerUpdates": [],
+          "domain": "powersolusa.com",
+          "scrapedUrls": [
+            "https://www.powersolusa.com/",
+            "https://www.powersolusa.com/blog/",
+            "https://www.powersolusa.com/contact/",
+            "https://www.powersolusa.com/#",
+            "https://www.powersolusa.com/"
+          ],
+          "emails": [],
+          "phones": [
+            "+18558476527"
+          ],
+          "phonesUncertain": [
+            "(855) 847-6527",
+            "13012024"
+          ],
+          "linkedIns": [],
+          "twitters": [
+            "https://x.com/powersolusa"
+          ],
+          "instagrams": [
+            "https://www.instagram.com/powersolusa"
+          ],
+          "facebooks": [
+            "https://www.facebook.com/powersolusa"
+          ],
+          "youtubes": [],
+          "tiktoks": [],
+          "pinterests": [],
+          "discords": [],
+          "snapchats": [],
+          "threads": [],
+          "telegrams": [],
+          "reddits": [],
+          "whatsapps": [],
+          "imageUrls": [],
+          "images": null,
+          "reviews": [],
+          "leadsEnrichment": null
+        }
+      }
+    ]
+  },
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Run an Actor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run an Actor": {
+      "main": [
+        [
+          {
+            "node": "Get dataset items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get dataset items": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e3d89f58-b7f3-40fd-ab24-60b32cfedf04",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f2de4c54da3c3963b6c279192ccb9b1ed62de64aefd91dadce962217d2345e05"
+  },
+  "id": "ziTBpsRYTrVbY0Gx",
+  "tags": []
+}

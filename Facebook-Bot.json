@@ -1,0 +1,787 @@
+{
+  "name": "Facebook-Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "multipleMethods": true,
+        "path": "edd78a32-4cd7-4b95-9fee-f1071159e41f",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        48,
+        256
+      ],
+      "id": "dbc37089-efa1-4c47-93cc-053eb3b7c58c",
+      "name": "Webhook",
+      "webhookId": "edd78a32-4cd7-4b95-9fee-f1071159e41f"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.query['hub.challenge'] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        416,
+        -400
+      ],
+      "id": "048b3d4a-c2d6-4402-be27-b007fbbc1cec",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.entry[0].messaging[0].message.text }}",
+        "options": {
+          "systemMessage": "=Afters By Chukys Sweet Bakers\nRole:\nYou are Afters Bot, a dedicated and helpful AI assistant for \"Afters By Chukys\" Sweet Bakers. Your primary goal is to assist customers with information about Afters By Chukys, including their menu items, business details, and recent customer conversations.\n\nTools & Usage Guidelines:\nPostgres Database:\nUse this tool to retrieve the user's recent communication history for context and personalized responses.\n\nSupabase Vector Store2:\nAlways query this tool first to access documents related to Afters By Chukys and its menu items. This includes details like menu descriptions, prices, business address, contact information, and more.\nAccess and verify information from this tool before answering any user queries about Afters Bakers or menu items to ensure response accuracy.\n\nGet Item Image (Sub-workflow Tool):\nWhen the user mentions any menu item by name, always:\n\nSearch the \"Supabase Vector Store2\" for the Google Drive link of the item's image.\n\nPass the retrieved link to the \"Get Item Image\" sub-workflow tool to fetch the image.\n\nInclude the fetched image in your reply to the user alongside relevant information about the item.\n\nBehavior and Conditions:\nAlways prioritize checking the Supabase Vector Store2 for up-to-date and accurate information before generating any reply.\n\nIf the user mentions a menu item, fetching and sending the item's image is mandatory along with item details.\n\nUse clear, concise, and customer-friendly language in all responses to provide a warm and professional user experience.\n\nLeverage the recent message history from Postgres to maintain conversational context and personalization.\n\nBe proactive in offering additional help related to menu items, business hours, location, or any specials Afters By Chukys might have.\n\nIf information is not found in the database or vector store, politely inform the user and offer to help with other queries."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        816,
+        192
+      ],
+      "id": "d71659fe-2f92-4040-804e-f31fd65c3764",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        416
+      ],
+      "id": "4458f0fc-b647-4168-bf2e-302f715cb5c8",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "tr89skUljdwqI4hb",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b1a2f8aa-e429-4010-9133-addab7434518",
+              "leftValue": "={{ $json.query['hub.mode'] }}",
+              "rightValue": "subscribe",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "30b3e443-6ea6-4be5-bc90-168228f5618d",
+              "leftValue": "={{ $json.query['hub.verify_token'] }}",
+              "rightValue": "testn8n",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        -384
+      ],
+      "id": "eff6e56a-6054-4cc7-ab70-8bc1132a21a4",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "content": "## Verification From Meta\n",
+        "height": 224,
+        "width": 640
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        -464
+      ],
+      "typeVersion": 1,
+      "id": "b867e075-8927-4515-bada-e862e6cd5c96",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "18w-pHZYKLxuO9WuvOTtOvLyQRRRqv7Oq",
+          "mode": "list",
+          "cachedResultName": "Afters By Chukys menu.docx",
+          "cachedResultUrl": "https://docs.google.com/document/d/18w-pHZYKLxuO9WuvOTtOvLyQRRRqv7Oq/edit?usp=drivesdk&ouid=109519054826434470170&rtpof=true&sd=true"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        736,
+        -384
+      ],
+      "id": "f1d4a2f0-5a40-475d-9987-9d96bbe63b54",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "xfZP8TuUjo8wV2L5",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        944,
+        -384
+      ],
+      "id": "588ce4e6-4a7d-45c9-a845-b6ee9726b7f4",
+      "name": "Supabase Vector Store1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "mUONr2X3ADN4Z6fw",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        768,
+        -144
+      ],
+      "id": "9bf98828-46b9-4e8b-9971-d075b724ccf1",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "tr89skUljdwqI4hb",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "textSplittingMode": "custom",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        976,
+        -208
+      ],
+      "id": "af2b6561-4227-4717-a54d-f66971a26533",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        976,
+        -48
+      ],
+      "id": "e5c0f57c-d766-40fe-a522-e45b4fe75e50",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Use this to get information about Afters bakers.",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        1200,
+        512
+      ],
+      "id": "589fd79c-6f9d-4f7d-9e7a-82f06dfcb247",
+      "name": "Supabase Vector Store2",
+      "credentials": {
+        "supabaseApi": {
+          "id": "mUONr2X3ADN4Z6fw",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1264,
+        656
+      ],
+      "id": "104afe45-c4ab-4954-ab74-7ebfdd82055e",
+      "name": "Embeddings OpenAI2",
+      "credentials": {
+        "openAiApi": {
+          "id": "tr89skUljdwqI4hb",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## DataBase Setup\n",
+        "height": 592,
+        "width": 800,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        672,
+        -464
+      ],
+      "typeVersion": 1,
+      "id": "722adeef-6370-470a-a8f3-8b456f0cd012",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "height": 640,
+        "width": 1728,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        192,
+        48
+      ],
+      "typeVersion": 1,
+      "id": "04ebbb29-1369-4888-aacf-eb26f9f15849",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## WebHook Input From UserChat",
+        "height": 256,
+        "width": 416
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        16,
+        160
+      ],
+      "typeVersion": 1,
+      "id": "ee77293e-f3df-47ee-8589-013db642d391",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.body.entry[0].messaging[0].sender.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        832,
+        416
+      ],
+      "id": "62481adf-5d66-47fa-a09c-9f211b39ac03",
+      "name": "Postgres Database",
+      "credentials": {
+        "postgres": {
+          "id": "1wMWi1I3XlUhUUEQ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Call this workflow to get the Image file using Google Drive link",
+        "workflowId": {
+          "__rl": true,
+          "value": "uPJnRzLlhX083lYN",
+          "mode": "list",
+          "cachedResultName": "Sub-Workflow Downloading Items Image"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        528
+      ],
+      "id": "6b8cc12c-ce31-4567-b9c9-3ebf76bc32fd",
+      "name": "Get Item Image",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.googleDriveLink }}",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1632,
+        352
+      ],
+      "id": "ea1e659f-10b0-45ba-9ff1-3812f5bc3438",
+      "name": "Download file1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "xfZP8TuUjo8wV2L5",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called googleDriveLink to the JSON of each one\nfor (let item of $input.all()) {\n    // Extract the Google Drive link using a simple string search\n    let text = item.json.output || \"\"; // Safely access the output field, default to empty string if not found\n    let startIdx = text.indexOf(\"https://drive.google.com/file/d/\");\n    if (startIdx !== -1) {\n        let endIdx = text.indexOf(\"/view?usp=sharing\", startIdx) + \"/view?usp=sharing\".length;\n        // Ensure endIdx is within bounds, otherwise use the end of the string\n        if (endIdx > text.length || endIdx < 0) {\n            endIdx = text.length;\n        }\n        let googleDriveLink = text.substring(startIdx, endIdx);\n        item.json.googleDriveLink = googleDriveLink;\n    } else {\n        item.json.googleDriveLink = null;\n    }\n    // Add the original output as a separate field\n    item.json.outputText = text;\n}\nreturn $input.all(); // Return the modified items"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1264,
+        288
+      ],
+      "id": "ec2497db-65e0-4af4-bf9c-a02a082e22a2",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v23.0/{{ $('Webhook').item.json.body.entry[0].messaging[0].recipient.id }}/messages",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "access_token",
+              "value": "YOUR_FACEBOOK_ACCESS_TOKEN"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $('Webhook').item.json.body.entry[0].messaging[0].sender.id }}\"\n  },\n  \"messaging_type\": \"RESPONSE\",\n  \"message\": {\n    \"text\": {{ JSON.stringify($json.output) }}\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1632,
+        640
+      ],
+      "id": "e6b5996a-345c-47d3-8037-376b58839da6",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4367d2da-061d-43ee-8807-2314bae4daf6",
+              "leftValue": "={{ $json.googleDriveLink }}",
+              "rightValue": "=https://drive.google.com/file/d/",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1440,
+        384
+      ],
+      "id": "39475ef7-e876-4512-afee-77cc740717d5",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v23.0/108443804012122/message_attachments?access_token=YOUR_FACEBOOK_ACCESS_TOKEN",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message",
+              "value": "{   \"attachment\": {     \"type\": \"image\",     \"payload\": {}   } }"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1840,
+        320
+      ],
+      "id": "28a10965-3aaa-48c7-80cd-5eb5c98b5d79",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v23.0/{{ $('Webhook').item.json.body.entry[0].messaging[0].recipient.id }}/messages",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "access_token",
+              "value": "YOUR_FACEBOOK_ACCESS_TOKEN"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $('Webhook').item.json.body.entry[0].messaging[0].sender.id }}\"\n  },\n  \"messaging_type\": \"RESPONSE\",\n  \"message\": {\n    \"attachment\": {\n      \"type\": \"image\",\n      \"payload\": {\n        \"attachment_id\": \"{{ $json[\"attachment_id\"] }}\"\n      }\n    }\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2016,
+        320
+      ],
+      "id": "dcb2ff39-647c-4925-b37d-bcb0a615da88",
+      "name": "HTTP Request2"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.srv1001257.hstgr.cloud",
+            "user-agent": "facebookexternalua",
+            "content-length": "223",
+            "accept": "*/*",
+            "accept-encoding": "deflate, gzip",
+            "content-type": "application/json",
+            "facebook-api-version": "v23.0",
+            "x-forwarded-for": "172.18.0.1",
+            "x-forwarded-host": "n8n.srv1001257.hstgr.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "a118c85f5838",
+            "x-hub-signature": "sha1=7418e69fbd11ba6fd7825700b71b8655b6d8aa69",
+            "x-hub-signature-256": "sha256=392534f4a9714e39f673e990589c88ef704ca80a848fc6740a782b6f82667ce2",
+            "x-real-ip": "172.18.0.1"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "object": "page",
+            "entry": [
+              {
+                "time": 1758417906428,
+                "id": "108443804012122",
+                "messaging": [
+                  {
+                    "sender": {
+                      "id": "24625568383790736"
+                    },
+                    "recipient": {
+                      "id": "108443804012122"
+                    },
+                    "timestamp": 1758417904991,
+                    "read": {
+                      "watermark": 1758417904862
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "webhookUrl": "https://n8n.srv1001257.hstgr.cloud/webhook/edd78a32-4cd7-4b95-9fee-f1071159e41f",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store1",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store2": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI2": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store2",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Database": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Item Image": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Download file1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "71ebb6b4-bf63-45c6-a550-718b9617ab5b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "539cd56ece7a2f997e08e80a4f924c22976be93f154b9f0f08a285e0f93db7e2"
+  },
+  "id": "j6igKCi6j7ejIyGv",
+  "tags": []
+}

@@ -1,0 +1,443 @@
+{
+  "name": "Abbas Content Studio",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "content-studio",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -2272,
+        -320
+      ],
+      "id": "62d4813a-6080-48e4-9c0f-a2521802e5e7",
+      "name": "Image Ad Webhook2",
+      "webhookId": "88b345f7-1fad-469b-86ef-5ad1ebeed34d",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body;\nreturn [{\n  json: {\n    adConcept: body.adConcept || '',\n    aspectRatio: body.aspectRatio || '1:1',\n    adType: body.adType || 'no-text-avatar',\n    variations: parseInt(body.variations) || 3,\n    language: body.language || 'en-US',\n    selectedProduct: body.selectedProduct || '',\n    selectedBrandId: body.selectedBrandId || '',\n    headline: body.headline || '',\n    bodyText: body.bodyText || '',\n    ctaText: body.ctaText || '',\n    productPrice: body.productPrice || '',\n    activeTab: body.activeTab || 'create'\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2048,
+        -320
+      ],
+      "id": "f3877c52-d006-42ce-aa41-f44b901c0f32",
+      "name": "Extract Input2"
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "chatModel": "gpt-4o",
+        "prompt": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "=You are an expert advertising creative director and AI image prompt engineer. Your job is to take a raw ad concept description and transform it into a highly detailed, professional image generation prompt.\n\nCRITICAL RULES FOR TEXT ELEMENTS:\n1. ONLY include headline, body text, CTA, or product price if they are explicitly provided in the input and are NOT empty.\n2. If text elements are NOT provided or are empty, do NOT invent, generate, or include ANY text elements in your output. Focus purely on the visual description.\n3. When text elements ARE provided, ALWAYS format them using square brackets - NEVER use quotes:\n   - CORRECT: The headline [Taste the Royalty] is placed...\n   - CORRECT: The CTA [Buy Now] is displayed...\n   - CORRECT: The product price [500] is shown...\n   - WRONG: The headline \"Taste the Royalty\" is placed...\n   - WRONG: The headline \\\"Taste the Royalty\\\" is placed...\n4. Use the EXACT text provided - never modify or create new headlines, CTAs, or prices.\n\nVISUAL ENHANCEMENT RULES:\n5. Expand the concept with rich visual details: lighting, composition, textures, colors, mood, camera angle\n6. Consider the aspect ratio for composition:\n   - 1:1 = square, centered composition\n   - 16:9 = wide landscape, cinematic\n   - 9:16 = tall portrait, vertical focus\n7. Focus on commercial/advertising quality: clean, professional, high-end look\n\nAD TYPE HANDLING:\n8. If ad type is \"no-text-avatar\": explicitly state \"No text, no words, no letters, no watermarks anywhere in the image\" and ignore any text fields even if provided.\n9. If ad type is \"with-text\" AND text elements are provided: incorporate the headline/body/CTA text placement naturally using [brackets] format, describing their position, font style, and visual integration.\n10. If ad type is \"with-text\" BUT no text elements are provided: focus only on visual description without mentioning any text.\n\nOUTPUT REQUIREMENTS:\n- Output ONLY the enhanced prompt text, nothing else\n- Keep the prompt under 900 characters\n- Make it vivid, specific, and optimized for AI image generation\n- NEVER use quotation marks for text elements - ALWAYS use [square brackets]"
+            },
+            {
+              "content": "=Enhance this ad concept for image generation:\n\nOriginal concept: {{ $json.adConcept }}\nAd type: {{ $json.adType }}\nAspect ratio: {{ $json.aspectRatio }}\nLanguage/market: {{ $json.language }}\nHeadline: {{ $json.headline }}\nBody text: {{ $json.bodyText }}\nCTA text: {{ $json.ctaText }}\nProduct Price: {{ $json.productPrice }}"
+            }
+          ]
+        },
+        "options": {
+          "maxTokens": 500,
+          "temperature": 0.7
+        },
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1.1,
+      "position": [
+        -1856,
+        -320
+      ],
+      "id": "be163166-c34c-4595-b0bc-48f0ad5a4fe3",
+      "name": "Enhance Ad Concept1",
+      "credentials": {
+        "openAiApi": {
+          "id": "VtqWUr7ARdpAtfjO",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -192,
+        -352
+      ],
+      "id": "5b8ed0e8-109a-4468-a4cc-b0ee0b71f518",
+      "name": "Respond to Webhook2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"nano-banana-pro\",\n  \"input\": {\n    \"prompt\": \"{{ $json.prompt }}\",\n    \"aspect_ratio\": \"{{ $('Extract Input2').item.json.aspectRatio }}\",\n    \"resolution\": \"1K\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1312,
+        -320
+      ],
+      "id": "adf08ce3-0fd7-40d2-a027-deb5a2ab78ca",
+      "name": "Create Image"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "52eca12b-921d-4dbc-8a0c-420fb688fe55",
+              "name": "prompt",
+              "value": "={{ $json.prompt }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1488,
+        -320
+      ],
+      "id": "d3b232a0-79aa-48f0-bbe5-956858afba7a",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -1088,
+        -320
+      ],
+      "id": "9735d214-e497-4919-a8a4-8cc1d39fa719",
+      "name": "Wait 10s2",
+      "webhookId": "wh-wait-nano-banana"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_API_KEY"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -928,
+        -320
+      ],
+      "id": "55091aae-35af-44ac-8ae8-6a9f783d048c",
+      "name": "Poll Task Status2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst allDone = items.every(item => {\n  const state = item.json.data?.state;\n  return state === 'success' || state === 'fail';\n});\n\nif (allDone) {\n  // All tasks finished - send to output 0 (Aggregate Results)\n  return items;\n} else {\n  // Still processing - we'll use the second output\n  // But Code node only has 1 output, so we use a flag\n  return items.map(item => ({\n    json: {\n      ...item.json,\n      allDone: allDone\n    }\n  }));\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -752,
+        -320
+      ],
+      "id": "6043a7cc-6c1f-4a60-8a47-731e12f80d42",
+      "name": "Check All Done2"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Poll Task Status2').item.json.data.state }}",
+                    "rightValue": "success",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "5d365e2d-6c1d-48fd-b1e1-dc6ed403e684"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "success"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b233b687-f81c-428e-bce7-459684a6a34b",
+                    "leftValue": "={{ $('Poll Task Status2').item.json.data.state }}",
+                    "rightValue": "waiting",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "generating"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "69d8ccbf-d327-4705-9159-b7be48f99e73",
+                    "leftValue": "={{ $('Poll Task Status2').item.json.data.state }}",
+                    "rightValue": "fail",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "fail"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -512,
+        -336
+      ],
+      "id": "e32ffd15-245b-4fdf-b527-9553da466bcd",
+      "name": "Switch5"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get enhanced concept from current input\nconst enhancedConcept = $input.first().json.content || $input.first().json.message?.content || '';\n\n// Set defaults - you'll need to pass these through your workflow\n// or change 'Extract Input1' to your actual node name\nconst variations = $('Extract Input2').first().json.variations; // Change this or pass it through\nconst aspectRatio = '1:1';\nconst adType = 'with-text';\nconst adConcept = '';\n\nconst styleModifiers = [\n  'Professional studio lighting with soft diffused highlights and gentle shadows, ultra-sharp focus, 8K commercial photography quality',\n  'Dramatic cinematic lighting with rich contrast and warm golden tones, depth of field effect, premium advertising look',\n  'Bright and vibrant natural lighting with clean minimalist aesthetic, high-key photography style, modern and fresh feel',\n  'Moody atmospheric lighting with cool blue undertones and selective focus, luxury brand aesthetic, editorial quality',\n  'Soft ethereal glow with pastel color grading and dreamy bokeh background, elegant and sophisticated commercial style'\n];\n\nconst items = [];\nfor (let i = 0; i < Math.min(variations, 5); i++) {\n  const modifier = styleModifiers[i % styleModifiers.length];\n  items.push({\n    json: {\n      variationIndex: i + 1,\n      prompt: enhancedConcept + '. ' + modifier,\n      enhancedConcept: enhancedConcept,\n      originalConcept: adConcept,\n      aspect_ratio: aspectRatio,\n      resolution: '1K',\n      output_format: 'png',\n      adType: adType,\n      totalVariations: variations\n    }\n  });\n}\n\nreturn items;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1648,
+        -320
+      ],
+      "id": "a6f41eb5-c87f-4c17-9d12-bb000d33462c",
+      "name": "Build Variation Prompts1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Image Ad Webhook2": {
+      "main": [
+        [
+          {
+            "node": "Extract Input2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Input2": {
+      "main": [
+        [
+          {
+            "node": "Enhance Ad Concept1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enhance Ad Concept1": {
+      "main": [
+        [
+          {
+            "node": "Build Variation Prompts1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Image": {
+      "main": [
+        [
+          {
+            "node": "Wait 10s2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Create Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 10s2": {
+      "main": [
+        [
+          {
+            "node": "Poll Task Status2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Poll Task Status2": {
+      "main": [
+        [
+          {
+            "node": "Check All Done2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check All Done2": {
+      "main": [
+        [
+          {
+            "node": "Switch5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch5": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait 10s2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Variation Prompts1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "9c16820d-f802-4e63-9904-f41195e19371",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c9994b411d63e3648311d60e38c4291fc3bcf9c37f1bdffdb109561f89a07af6"
+  },
+  "id": "BIEw3PJq1xnvfb-fkOyMS",
+  "tags": []
+}

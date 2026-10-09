@@ -1,0 +1,848 @@
+{
+  "name": "Re-Order Items throug WhatsApp",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "seconds",
+              "secondsInterval": 200
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -192,
+        688
+      ],
+      "id": "cea362f2-3a17-4775-b165-49bc26faf875",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1F4BsOX-VdbNE6wQVWu-6fUTypGvOGCfn0g1WPATm6zM",
+          "mode": "list",
+          "cachedResultName": "SupplyChainData",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1F4BsOX-VdbNE6wQVWu-6fUTypGvOGCfn0g1WPATm6zM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Wh",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1F4BsOX-VdbNE6wQVWu-6fUTypGvOGCfn0g1WPATm6zM/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "type",
+              "lookupValue": "Inventory"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        0,
+        592
+      ],
+      "id": "f8eeccb4-bd47-4677-ad54-e67346f3f0a6",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XALMCe1OJMWA9LO5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        304,
+        672
+      ],
+      "id": "66cf23b1-76d1-4e6c-807e-d40efc261201",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Input: Merged data from both sheets\n// Input 1 → Inventory Sheet\n// Input 2 → Threshold Sheet\n\n// Get data from both inputs\nconst inventoryData = items.filter(i => i.json.item).map(i => i.json);\nconst thresholdData = items.filter(i => i.json.Items).map(i => i.json);\n\n// Combine duplicate items in inventory (sum their quantities)\nconst inventoryTotals = {};\nfor (const entry of inventoryData) {\n  const name = entry.item.trim();\n  const qty = Number(entry.quantity) || 0;\n  inventoryTotals[name] = (inventoryTotals[name] || 0) + qty;\n}\n\n// Combine duplicate items in threshold (use max or latest value)\nconst thresholdTotals = {};\nfor (const entry of thresholdData) {\n  const name = entry.Items.trim();\n  const qty = Number(entry.Quantity) || 0;\n  // if same item appears multiple times, keep highest threshold\n  thresholdTotals[name] = Math.max(thresholdTotals[name] || 0, qty);\n}\n\n// Compare\nconst lowStockItems = [];\nfor (const [item, thresholdQty] of Object.entries(thresholdTotals)) {\n  const inventoryQty = inventoryTotals[item] || 0;\n  if (inventoryQty < thresholdQty) {\n    lowStockItems.push({\n      item,\n      inventoryQty,\n      thresholdQty,\n      shortage: thresholdQty - inventoryQty\n    });\n  }\n}\n\n// Return the result to next node\nreturn lowStockItems.map(i => ({ json: i }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        672
+      ],
+      "id": "48e1ef29-d923-4488-9b57-c867f92f5c0f",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Format the inventory shortage data into a WhatsApp-friendly message\n\nconst shortages = items.map(i => i.json);\n// Build message header\nlet message = `📦 *Inventory Shortage Alert*\\n\\nThe following items are below the required threshold:\\n\\n`;\n\n// Add each item in a new line\nshortages.forEach(s => {\n  message += `🔹 *${s.item}*\\n   - In Stock: ${s.inventoryQty}\\n   - Short by: ${s.shortage}\\n\\n`;\n});\n\n// Add a footer\nmessage += `⚠️ Please reorder these items to maintain stock levels.\\n\\n~ Automated from Cobani Re-Order System`;\n\nreturn [{ json: { message } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        656,
+        672
+      ],
+      "id": "0ed0f4c3-dd4a-4fc1-aba6-4503ee8c9805",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cobaniflowwhatsapp",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -672,
+        112
+      ],
+      "id": "414ff74e-c53f-4484-8b8e-ba0265e3800a",
+      "name": "Webhook3",
+      "webhookId": "6db63458-8636-4382-a383-41010bf03e99"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "47164cad-673b-4b47-887d-869b98afda24",
+              "leftValue": "={{ $json.body.data.message.conversation }}",
+              "rightValue": "yes",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "ce089fb2-cfdd-43e4-980f-ee902e188f53",
+              "leftValue": "={{ $json.body.data.message.conversation }}",
+              "rightValue": "Yes",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "19ec9ed2-43a2-492c-bc37-cee14aee03bd",
+              "leftValue": "={{ $json.body.data.message.conversation }}",
+              "rightValue": "YES",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "56c9cb52-1222-4293-9c05-9f51f67e2248",
+              "leftValue": "={{ $json.body.data.message.conversation }}",
+              "rightValue": "1",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -240,
+        112
+      ],
+      "id": "4d6cd138-b122-4b56-83f8-b04035489bba",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dafa93f8-afab-4d7e-a728-563d013c324a",
+              "name": "body.data.message.conversation",
+              "value": "={{ $json.body.data.message.conversation }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -464,
+        112
+      ],
+      "id": "c4790ee6-1449-439d-8032-49e49a0ef3a1",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        208,
+        96
+      ],
+      "id": "d02b20d8-b37b-4aac-9d98-259be576dd60",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        0,
+        384
+      ],
+      "id": "615cee66-cee9-43d4-b33f-7837ceb0555b",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1UV3lNn62Q9eJ31G_j__fbbJssiXvjJkCwY_jMIWFOmI",
+          "mode": "list",
+          "cachedResultName": "Suppliers Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UV3lNn62Q9eJ31G_j__fbbJssiXvjJkCwY_jMIWFOmI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UV3lNn62Q9eJ31G_j__fbbJssiXvjJkCwY_jMIWFOmI/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        288,
+        272
+      ],
+      "id": "8e4ae5a5-8288-4414-aa83-2cb2bd948abf",
+      "name": "Supplier Data",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XALMCe1OJMWA9LO5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Input: Merged data from both sheets\n// Input 1 → Inventory Sheet\n// Input 2 → Threshold Sheet\n\n// Get data from both inputs\nconst inventoryData = items.filter(i => i.json.item).map(i => i.json);\nconst thresholdData = items.filter(i => i.json.Items).map(i => i.json);\n\n// Combine duplicate items in inventory (sum their quantities)\nconst inventoryTotals = {};\nfor (const entry of inventoryData) {\n  const name = entry.item.trim();\n  const qty = Number(entry.quantity) || 0;\n  inventoryTotals[name] = (inventoryTotals[name] || 0) + qty;\n}\n\n// Combine duplicate items in threshold (use max or latest value)\nconst thresholdTotals = {};\nfor (const entry of thresholdData) {\n  const name = entry.Items.trim();\n  const qty = Number(entry.Quantity) || 0;\n  // if same item appears multiple times, keep highest threshold\n  thresholdTotals[name] = Math.max(thresholdTotals[name] || 0, qty);\n}\n\n// Compare\nconst lowStockItems = [];\nfor (const [item, thresholdQty] of Object.entries(thresholdTotals)) {\n  const inventoryQty = inventoryTotals[item] || 0;\n  if (inventoryQty < thresholdQty) {\n    lowStockItems.push({\n      item,\n      inventoryQty,\n      thresholdQty,\n      shortage: thresholdQty - inventoryQty\n    });\n  }\n}\n\n// Return the result to next node\nreturn lowStockItems.map(i => ({ json: i }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        96
+      ],
+      "id": "edba388c-7655-4fe3-84dc-6d0878eeca3a",
+      "name": "Short Items Data"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1F4BsOX-VdbNE6wQVWu-6fUTypGvOGCfn0g1WPATm6zM",
+          "mode": "list",
+          "cachedResultName": "SupplyChainData",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1F4BsOX-VdbNE6wQVWu-6fUTypGvOGCfn0g1WPATm6zM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 582038992,
+          "mode": "list",
+          "cachedResultName": "Items Threshold Value",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1F4BsOX-VdbNE6wQVWu-6fUTypGvOGCfn0g1WPATm6zM/edit#gid=582038992"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "type",
+              "lookupValue": "Tv"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        0,
+        192
+      ],
+      "id": "d1929778-3c5b-4208-aa44-71f7709b2f72",
+      "name": "Items Threshold Value",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XALMCe1OJMWA9LO5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1F4BsOX-VdbNE6wQVWu-6fUTypGvOGCfn0g1WPATm6zM",
+          "mode": "list",
+          "cachedResultName": "SupplyChainData",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1F4BsOX-VdbNE6wQVWu-6fUTypGvOGCfn0g1WPATm6zM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 582038992,
+          "mode": "list",
+          "cachedResultName": "Items Threshold Value",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1F4BsOX-VdbNE6wQVWu-6fUTypGvOGCfn0g1WPATm6zM/edit#gid=582038992"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "type",
+              "lookupValue": "Tv"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        0,
+        784
+      ],
+      "id": "6deee3c3-7f13-42a5-a57d-fb9579092339",
+      "name": "Items Threshold Value1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XALMCe1OJMWA9LO5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1F4BsOX-VdbNE6wQVWu-6fUTypGvOGCfn0g1WPATm6zM",
+          "mode": "list",
+          "cachedResultName": "SupplyChainData",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1F4BsOX-VdbNE6wQVWu-6fUTypGvOGCfn0g1WPATm6zM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Wh",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1F4BsOX-VdbNE6wQVWu-6fUTypGvOGCfn0g1WPATm6zM/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "type",
+              "lookupValue": "Inventory"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        0,
+        0
+      ],
+      "id": "1aef8cbe-c0ef-474f-8e2d-e7069db66385",
+      "name": "Inventory Available Items",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XALMCe1OJMWA9LO5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        624,
+        96
+      ],
+      "id": "2956491e-8a4f-4ca4-b905-3ed4b2f45535",
+      "name": "Merge2"
+    },
+    {
+      "parameters": {
+        "jsCode": "// In n8n, your input items will automatically come in as \"items\"\nconst data = items.map(i => i.json); // get all input JSON objects\n\n// Check if there is data\nif (!data || data.length === 0) {\n  return [{ json: { error: \"No data found\" } }];\n}\n\n// Loop dynamically over each supplier\nconst messages = data.map(vendor => {\n  const message = `\n📦 *Purchase Request*\n\nDear *${vendor.supplierName}*,\n\n📦 براہِ کرم درج ذیل اشیاء ہمارے گودام بھیج دیں۔\n\n🏠 پتہ: انٹرلیس روڈ، آئی-8 مرکز، اسلام آباد\n\nPlease deliver the following items to our branch:\n\n• *${vendor.item}* — *${vendor.shortage} units*\n\nWe are facing shortages and request prompt delivery.\n\nThank you,  \n*Warehouse Department*  \n*Business Name*\n`;\n\n  return {\n    json: {\n      to: `${vendor.contactNumber}`,\n      message: message.trim()\n    }\n  };\n});\n\n// Return the message list to the next node (WhatsApp node)\nreturn messages;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1072,
+        96
+      ],
+      "id": "6b2493fd-386b-4a43-9272-38f971545e8b",
+      "name": "Number & Msg For Item Vendor"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all incoming data\nconst data = items.map(x => x.json);\n\n// Separate short items and supplier data\nconst shortItems = data.filter(d => d.item && d.shortage !== undefined);\nconst suppliers = data.filter(d => d[\"Item Supplied\"]);\n\n// Match each short item with its supplier\nconst result = shortItems.map(shortItem => {\n  const match = suppliers.find(supplier => \n    supplier[\"Item Supplied\"].toLowerCase().trim() === shortItem.item.toLowerCase().trim()\n  );\n\n  if (match) {\n    return {\n      item: shortItem.item,\n      inventoryQty: shortItem.inventoryQty,\n      thresholdQty: shortItem.thresholdQty,\n      shortage: shortItem.shortage,\n      supplierName: match[\"Supplier Name\"],\n      contactNumber: match[\"Contact Number\"],\n      email: match[\"Email\"],\n      unitPrice: match[\"Unit Price\"]\n    };\n  } else {\n    return {\n      item: shortItem.item,\n      inventoryQty: shortItem.inventoryQty,\n      thresholdQty: shortItem.thresholdQty,\n      shortage: shortItem.shortage,\n      supplierName: \"Not Found\",\n      contactNumber: \"N/A\",\n      email: \"N/A\",\n      unitPrice: \"N/A\"\n    };\n  }\n});\n\n// Return merged result as output\nreturn result.map(r => ({ json: r }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        848,
+        96
+      ],
+      "id": "c9421b7d-717f-4d81-81f8-5a943ae0e4bb",
+      "name": "Vendor Information For Short Items",
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "=CobaniEvoapi",
+        "remoteJid": "={{ $json.to }}",
+        "messageText": "={{ $json.message }}",
+        "options_message": {}
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        1296,
+        96
+      ],
+      "id": "121995de-6a47-4226-b009-0ad91b673a6a",
+      "name": "Enviar texto2",
+      "credentials": {
+        "evolutionApi": {
+          "id": "I4HuFbKqM2JVH6j1",
+          "name": "Evolution account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "=CobaniEvoapi",
+        "remoteJid": "=923449687229",
+        "messageText": "={{ $json.message }}",
+        "options_message": {}
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        832,
+        672
+      ],
+      "id": "ef4fb861-df64-41db-8b02-296feb1555f2",
+      "name": "Enviar texto3",
+      "credentials": {
+        "evolutionApi": {
+          "id": "I4HuFbKqM2JVH6j1",
+          "name": "Evolution account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook3": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.cobaniflow.com",
+            "user-agent": "axios/1.12.2",
+            "content-length": "1639",
+            "accept": "application/json, text/plain, */*",
+            "accept-encoding": "gzip, compress, deflate, br",
+            "content-type": "application/json",
+            "x-forwarded-for": "172.18.0.1",
+            "x-forwarded-host": "n8n.cobaniflow.com",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "0607360d708c",
+            "x-real-ip": "172.18.0.1"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "event": "messages.upsert",
+            "instance": "EVOAPICobani",
+            "data": {
+              "key": {
+                "remoteJid": "923449687229@s.whatsapp.net",
+                "remoteJidAlt": "40432822169830@lid",
+                "fromMe": false,
+                "id": "ACB48A43D72386A7730EAF808A05F410",
+                "participant": "",
+                "addressingMode": "pn"
+              },
+              "pushName": "Yaseen Ayaz",
+              "status": "DELIVERY_ACK",
+              "message": {
+                "messageContextInfo": {
+                  "deviceListMetadata": {
+                    "senderKeyIndexes": [],
+                    "recipientKeyIndexes": [],
+                    "senderKeyHash": {
+                      "0": 219,
+                      "1": 248,
+                      "2": 166,
+                      "3": 128,
+                      "4": 186,
+                      "5": 98,
+                      "6": 121,
+                      "7": 170,
+                      "8": 237,
+                      "9": 116
+                    },
+                    "senderTimestamp": {
+                      "low": 1760882548,
+                      "high": 0,
+                      "unsigned": true
+                    },
+                    "recipientKeyHash": {
+                      "0": 114,
+                      "1": 178,
+                      "2": 55,
+                      "3": 187,
+                      "4": 146,
+                      "5": 246,
+                      "6": 206,
+                      "7": 63,
+                      "8": 161,
+                      "9": 179
+                    },
+                    "recipientTimestamp": {
+                      "low": 1760745423,
+                      "high": 0,
+                      "unsigned": true
+                    }
+                  },
+                  "deviceListMetadataVersion": 2,
+                  "messageSecret": {
+                    "0": 165,
+                    "1": 51,
+                    "2": 213,
+                    "3": 191,
+                    "4": 179,
+                    "5": 227,
+                    "6": 71,
+                    "7": 169,
+                    "8": 74,
+                    "9": 172,
+                    "10": 161,
+                    "11": 21,
+                    "12": 247,
+                    "13": 67,
+                    "14": 64,
+                    "15": 218,
+                    "16": 176,
+                    "17": 242,
+                    "18": 235,
+                    "19": 162,
+                    "20": 107,
+                    "21": 14,
+                    "22": 129,
+                    "23": 158,
+                    "24": 149,
+                    "25": 37,
+                    "26": 251,
+                    "27": 109,
+                    "28": 34,
+                    "29": 84,
+                    "30": 45,
+                    "31": 250
+                  }
+                },
+                "conversation": "yes"
+              },
+              "contextInfo": {
+                "mentionedJid": [],
+                "groupMentions": [],
+                "expiration": 86400,
+                "ephemeralSettingTimestamp": {
+                  "low": 1728395218,
+                  "high": 0,
+                  "unsigned": false
+                },
+                "disappearingMode": {
+                  "initiator": 1,
+                  "trigger": 2,
+                  "initiatedByMe": true
+                }
+              },
+              "messageType": "conversation",
+              "messageTimestamp": 1761029926,
+              "instanceId": "8d01bcb1-727b-4010-8639-a161686cc809",
+              "source": "android"
+            },
+            "destination": "https://n8n.cobaniflow.com/webhook/cobaniflowwhatsapp",
+            "date_time": "2025-10-21T03:58:46.843Z",
+            "sender": "923170919118@s.whatsapp.net",
+            "server_url": "https://evoapi.cobaniflow.com",
+            "apikey": "YOUR_API_KEY"
+          },
+          "webhookUrl": "https://n8n.cobaniflow.com/webhook/cobaniflowwhatsapp",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Items Threshold Value1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Inventory Available Items",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Items Threshold Value",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Supplier Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Short Items Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supplier Data": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Short Items Data": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Items Threshold Value": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Items Threshold Value1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Inventory Available Items": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "Vendor Information For Short Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vendor Information For Short Items": {
+      "main": [
+        [
+          {
+            "node": "Number & Msg For Item Vendor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Number & Msg For Item Vendor": {
+      "main": [
+        [
+          {
+            "node": "Enviar texto2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Enviar texto3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "204b5928-49e2-4582-a378-bfe6d55381dc",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f2de4c54da3c3963b6c279192ccb9b1ed62de64aefd91dadce962217d2345e05"
+  },
+  "id": "FiQyVF6Bc5LtNX4i",
+  "tags": []
+}
